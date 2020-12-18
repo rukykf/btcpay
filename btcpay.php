@@ -152,6 +152,13 @@ function btcpay_civicrm_check(&$messages) {
   CRM_Btcpay_Utils_Check_Requirements::check($messages);
 }
 
+/**
+ * Implements hook_civicrm_check().
+ */
+function bitpay_civicrm_check(&$messages) {
+  CRM_Btcpay_Utils_Check_Requirements::check($messages);
+}
+
 
 // --- Functions below this ship commented out. Uncomment as required. ---
 
