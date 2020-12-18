@@ -145,6 +145,14 @@ function btcpay_civicrm_themes(&$themes) {
   _btcpay_civix_civicrm_themes($themes);
 }
 
+/**
+ * Implements hook_civicrm_check().
+ */
+function btcpay_civicrm_check(&$messages) {
+  CRM_Btcpay_Utils_Check_Requirements::check($messages);
+}
+
+
 // --- Functions below this ship commented out. Uncomment as required. ---
 
 /**
