@@ -1,5 +1,4 @@
 !.gitkeep
-/vendor/
 /.idea/
 .php_cs.cache
 .phpunit.result.cache
