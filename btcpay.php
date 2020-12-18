@@ -1,6 +1,7 @@
 <?php
 
 require_once 'btcpay.civix.php';
+require_once __DIR__.'/vendor/autoload.php';
 
 // phpcs:disable
 use CRM_Btcpay_ExtensionUtil as E;
@@ -40,6 +41,7 @@ function btcpay_civicrm_install() {
  * @link https://docs.civicrm.org/dev/en/latest/hooks/hook_civicrm_postInstall
  */
 function btcpay_civicrm_postInstall() {
+  CRM_Core_Payment_Btcpay::createPaymentInstrument(['name' => 'Bitcoin']);
   _btcpay_civix_civicrm_postInstall();
 }
 
