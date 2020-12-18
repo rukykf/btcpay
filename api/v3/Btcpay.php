@@ -1,7 +1,7 @@
 <?php
 
 function civicrm_api3_btcpay_createkeys($params) {
-  $result = CRM_Bitpay_Keys::createNewKeys($params['payment_processor_id']);
+  $result = CRM_Btcpay_Keys::createNewKeys($params['payment_processor_id']);
   return civicrm_api3_create_success(['result' => $result], $params, 'Btcpay', 'createkeys');
 }
 
@@ -33,3 +33,20 @@ function _civicrm_api3_btcpay_pair_spec(&$spec) {
   $spec['payment_processor_id']['type'] = CRM_Utils_Type::T_INT;
 }
 
+/**
+ * Use this to "fix" a partially installed extension if the old btcpay
+ * extension was partially uninstalled. It's safe to run multiple times.
+ *
+ * @param $params
+ *
+ * @return array
+ * @throws \CiviCRM_API3_Exception
+ */
+function civicrm_api3_btcpay_checkinstall($params) {
+  $result = CRM_Core_Payment_Btcpay::createPaymentInstrument(['name' => 'Bitcoin']);
+
+  return civicrm_api3_create_success(['payment_instrument_id' => $result], $params, 'Btcpay', 'checkinstall');
+}
+
+function _civicrm_api3_btcpay_checkinstall_spec(&$spec) {
+}
