@@ -153,12 +153,60 @@ function btcpay_civicrm_check(&$messages) {
 }
 
 /**
- * Implements hook_civicrm_check().
+ * Add {payment_library}.js to forms, for payment processor handling
+ * hook_civicrm_alterContent is not called for all forms (eg. CRM_Contribute_Form_Contribution on backend)
+ *
+ * @param string $formName
+ * @param CRM_Core_Form $form
  */
-function bitpay_civicrm_check(&$messages) {
-  CRM_Btcpay_Utils_Check_Requirements::check($messages);
-}
+function bitpay_civicrm_buildForm($formName, &$form) {
+  if (!isset($form->_paymentProcessor)) {
+    return;
+  }
+  $paymentProcessor = $form->_paymentProcessor;
+  if (empty($paymentProcessor['class_name']) || ($paymentProcessor['class_name'] !== 'Payment_Btcpay')) {
+    return;
+  }
 
+  switch ($formName) {
+    case 'CRM_Event_Form_Registration_Confirm':
+    case 'CRM_Contribute_Form_Contribution_Confirm':
+      // Confirm Contribution (check details and confirm)
+      $form->assign('btcpayServerUrl', $paymentProcessor["url_site_default"]);
+      CRM_Core_Region::instance('contribution-confirm-billing-block')
+        ->update('default', ['disabled' => TRUE]);
+      CRM_Core_Region::instance('contribution-confirm-billing-block')
+        ->add(['template' => 'Btcpaycontribution-confirm-billing-block.tpl']);
+      break;
+
+    case 'CRM_Event_Form_Registration_ThankYou':
+      $billingBlockRegion = 'event-thankyou-billing-block';
+    case 'CRM_Contribute_Form_Contribution_ThankYou':
+      if (!isset($billingBlockRegion)) {
+        $billingBlockRegion = 'contribution-thankyou-billing-block';
+      }
+      // Contribution /Event Thankyou form
+      // Add the bitpay invoice handling
+      $contributionParams = [
+        'contact_id' => $form->_contactID,
+        'total_amount' => $form->_amount,
+        'contribution_test' => '',
+        'options' => ['limit' => 1, 'sort' => ['id DESC']],
+      ];
+      $trxnId = isset($form->trxnId) ? $form->trxnId : NULL;
+      if (empty($trxnId)) {
+        $contribution = civicrm_api3('Contribution', 'get', $contributionParams);
+        $trxnId = CRM_Utils_Array::first($contribution['values'])['trxn_id'];
+      }
+      $form->assign('btcpayTrxnId', $trxnId);
+      $form->assign('btcpayServerUrl', $paymentProcessor["url_site_default"]);
+      CRM_Core_Region::instance($billingBlockRegion)
+        ->update('default', ['disabled' => TRUE]);
+      CRM_Core_Region::instance($billingBlockRegion)
+        ->add(['template' => 'Btcpaycontribution-thankyou-billing-block.tpl']);
+      break;
+  }
+}
 
 // --- Functions below this ship commented out. Uncomment as required. ---
 
