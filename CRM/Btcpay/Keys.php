@@ -104,9 +104,12 @@ class CRM_Btcpay_Keys {
     /**
      * Now all the objects are created and we can inject them into the client
      */
-    $client->setPrivateKey($privateKey);
-    $client->setPublicKey($publicKey);
-    $client->setAdapter($adapter);
+
+    $btcpay = civicrm_api3('PaymentProcessor', 'get', [
+      'sequential' => 1,
+      'id' => $processorId,
+    ]);
+
     /**
      * Visit the url for your self-hosted BTCPay server and create a new pairing code. Pairing
      * codes can only be used once and the generated code is valid for only 24 hours.
@@ -119,11 +122,17 @@ class CRM_Btcpay_Keys {
     $sin = \BTCPayServer\SinKey::create()->setPublicKey($publicKey)->generate();
     /**** end ****/
     try {
+      //
+      var_dump($btcpay);
+      $client->setUri($btcpay["values"][0]["url_site"] . "tokens");
+      $client->setPrivateKey($privateKey);
+      $client->setPublicKey($publicKey);
+      $client->setAdapter($adapter);
+
       $token = $client->createToken(
         [
           'pairingCode' => $pairingCode,
-          'label' => 'You can insert a label here',
-          'id' => (string) $sin,
+          'label' => 'pairing03',
         ]
       );
     } catch (\Exception $e) {
@@ -140,12 +149,14 @@ class CRM_Btcpay_Keys {
 
       $request = $client->getRequest();
       $response = $client->getResponse();
+
+
       /**
        * You can use the entire request/response to help figure out what went
        * wrong, but for right now, we will just var_dump them.
        */
       Civi::log()
-        ->debug('BTCPay pairing request: ' . (string) $request . PHP_EOL . PHP_EOL . PHP_EOL);
+        ->debug('BTCPay pairing request: ' . (string) $request->getUri() . PHP_EOL . PHP_EOL . PHP_EOL);
       Civi::log()
         ->debug('BTCPay pairing response: ' . (string) $response . PHP_EOL . PHP_EOL . PHP_EOL);
       throw new CRM_Core_Exception($msg);
@@ -153,7 +164,7 @@ class CRM_Btcpay_Keys {
        * NOTE: The `(string)` is include so that the objects are converted to a
        *       user friendly string.
        */
-      // exit(1); // We do not want to continue if something went wrong
+      exit(1); // We do not want to continue if something went wrong
     }
     /**
      * You will need to persist the token somewhere, by the time you get to this
@@ -161,6 +172,7 @@ class CRM_Btcpay_Keys {
      * your own way to persist data. Such as using a framework or some other code
      * base such as Drupal.
      */
+
     $persistThisValue = $token->getToken();
 
     civicrm_api3('PaymentProcessor', 'create', [

@@ -496,6 +496,7 @@ class Client implements ClientInterface
         $this->response = $this->sendRequest($this->request);
         $body           = json_decode($this->response->getBody(), true);
 
+        var_dump($body);
         if (isset($body['error'])) {
             throw new \BTCPayServer\Client\BTCPayServerException($this->response->getStatusCode().": ".$body['error']);
         }
@@ -635,12 +636,14 @@ class Client implements ClientInterface
     {
         $request = new Request();
 
+        var_dump($this->uri);
+
         $host = parse_url($this->uri,PHP_URL_HOST);
         $port = parse_url($this->uri,PHP_URL_PORT);
         $scheme = parse_url($this->uri,PHP_URL_SCHEME);
 
         $request->setHost($host);
-        $request->setPort($port);
+        $request->setPort(80);
         $request->setScheme($scheme);
         $this->prepareRequestHeaders($request);
 
