@@ -131,7 +131,7 @@ class CRM_Core_Payment_Btcpay extends CRM_Core_Payment {
   public function doPayment(&$params, $component = 'contribute') {
     // Get the btcpay client object
     $client = $this->_client->getClient();
-
+    print_r($params);
     /**
      * This is where we will start to create an Invoice object, make sure to check
      * the InvoiceInterface for methods that you can use.

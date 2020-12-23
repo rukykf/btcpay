@@ -28,10 +28,11 @@ class CRM_Btcpay_Client {
     $privateKey = $storageEngine->load(CRM_Btcpay_Keys::getKeyPath($this->_paymentProcessor['id']));
     $publicKey = $storageEngine->load(CRM_Btcpay_Keys::getKeyPath($this->_paymentProcessor['id'], FALSE));
     $client = new \BTCPayServer\Client\Client();
-    $adapter = new \BTCPayServer\Client\Adapter\CurlAdapter();
+    $adapter = new CRM_Btcpay_Utils_GuzzleAdapter();
     $client->setPrivateKey($privateKey);
     $client->setPublicKey($publicKey);
     $client->setAdapter($adapter);
+    $client->setUri($this->_paymentProcessor["url_site"]);
     // ---------------------------
     /**
      * The last object that must be injected is the token object.

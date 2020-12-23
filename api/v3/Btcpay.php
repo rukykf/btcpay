@@ -19,7 +19,7 @@ function _civicrm_api3_btcpay_createkeys_spec(&$spec) {
  * @throws \CRM_Core_Exception
  */
 function civicrm_api3_btcpay_pair($params) {
-  $pairingToken = CRM_Btcpay_Keys::pair($params['payment_processor_id'], $params['pairingkey']);
+  $pairingToken = CRM_Btcpay_Keys::pair($params['payment_processor_id'], $params['pairingkey'], $params['label']);
   return civicrm_api3_create_success(['token' => $pairingToken], $params, 'Btcpay', 'pair');
 }
 
@@ -31,6 +31,9 @@ function _civicrm_api3_btcpay_pair_spec(&$spec) {
   $spec['payment_processor_id']['title'] = 'Payment Processor ID';
   $spec['payment_processor_id']['description'] = 'The Payment Processor ID';
   $spec['payment_processor_id']['type'] = CRM_Utils_Type::T_INT;
+  $spec['label']['api.required'] = 1;
+  $spec['label']['title'] = 'Label from your BTCPay server';
+  $spec['label']['type'] = CRM_Utils_Type::T_STRING;
 }
 
 /**
