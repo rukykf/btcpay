@@ -19,8 +19,8 @@ use BTCPayServer\PrivateKey;
  *
  * @package BTCPayServer
  */
-class Client implements ClientInterface
-{
+class Client implements ClientInterface {
+
     /**
      * @var RequestInterface
      */
@@ -56,18 +56,18 @@ class Client implements ClientInterface
      */
     protected $uri;
 
-    public function setUri(string $uri){
+    public function setUri(string $uri) {
         $this->uri = $uri;
     }
 
     /**
-     * Set the Public Key to use to help identify who you are to BTCPayServer. Please
-     * note that you must first pair your keys and get a token in return to use.
+     * Set the Public Key to use to help identify who you are to BTCPayServer.
+     * Please note that you must first pair your keys and get a token in return
+     * to use.
      *
      * @param PublicKey $key
      */
-    public function setPublicKey(PublicKey $key)
-    {
+    public function setPublicKey(PublicKey $key) {
         $this->publicKey = $key;
     }
 
@@ -76,25 +76,23 @@ class Client implements ClientInterface
      *
      * @param PrivateKey $key
      */
-    public function setPrivateKey(PrivateKey $key)
-    {
+    public function setPrivateKey(PrivateKey $key) {
         $this->privateKey = $key;
     }
 
     /**
      * @param AdapterInterface $adapter
      */
-    public function setAdapter(AdapterInterface $adapter)
-    {
+    public function setAdapter(AdapterInterface $adapter) {
         $this->adapter = $adapter;
     }
 
     /**
      * @param TokenInterface $token
+     *
      * @return ClientInterface
      */
-    public function setToken(TokenInterface $token)
-    {
+    public function setToken(TokenInterface $token) {
         $this->token = $token;
 
         return $this;
@@ -103,12 +101,11 @@ class Client implements ClientInterface
     /**
      * @inheritdoc
      */
-    protected function fillInvoiceData(InvoiceInterface $invoice, $data)
-    {
+    protected function fillInvoiceData(InvoiceInterface $invoice, $data) {
         // Returns the invoice time in milliseconds. PHP's DateTime object expects the time to be in seconds
-        $invoiceTime = is_numeric($data['invoiceTime']) ? intval($data['invoiceTime']/1000) : $data['invoiceTime'];
-        $expirationTime = is_numeric($data['expirationTime']) ? intval($data['expirationTime']/1000) : $data['expirationTime'];
-        $currentTime = is_numeric($data['currentTime']) ? intval($data['currentTime']/1000) : $data['currentTime'];
+        $invoiceTime = is_numeric($data['invoiceTime']) ? intval($data['invoiceTime'] / 1000) : $data['invoiceTime'];
+        $expirationTime = is_numeric($data['expirationTime']) ? intval($data['expirationTime'] / 1000) : $data['expirationTime'];
+        $currentTime = is_numeric($data['currentTime']) ? intval($data['currentTime'] / 1000) : $data['currentTime'];
 
         $invoiceToken = new \BTCPayServer\Token();
         $invoice
@@ -126,7 +123,7 @@ class Client implements ClientInterface
             ->setAmountPaid(array_key_exists('amountPaid', $data) ? $data['amountPaid'] : '')
             ->setExceptionStatus($data['exceptionStatus'])
             ->setRefundAddresses(array_key_exists('refundAddresses', $data) ? $data['refundAddresses'] : '')
-            ->setTransactionCurrency(array_key_exists('transactionCurrency', $data) ? $data['transactionCurrency'] : null)
+            ->setTransactionCurrency(array_key_exists('transactionCurrency', $data) ? $data['transactionCurrency'] : NULL)
             ->setPaymentTotals(array_key_exists('paymentTotals', $data) ? $data['paymentTotals'] : '')
             ->setPaymentSubtotals(array_key_exists('paymentSubtotals', $data) ? $data['paymentSubtotals'] : '')
             ->setExchangeRates(array_key_exists('exchangeRates', $data) ? $data['exchangeRates'] : '');
@@ -136,52 +133,51 @@ class Client implements ClientInterface
     /**
      * @inheritdoc
      */
-    public function createInvoice(InvoiceInterface $invoice)
-    {
+    public function createInvoice(InvoiceInterface $invoice) {
         $request = $this->createNewRequest();
         $request->setMethod(Request::METHOD_POST);
         $request->setPath('invoices');
 
-        $currency     = $invoice->getCurrency();
-        $item         = $invoice->getItem();
-        $buyer        = $invoice->getBuyer();
+        $currency = $invoice->getCurrency();
+        $item = $invoice->getItem();
+        $buyer = $invoice->getBuyer();
         $buyerAddress = $buyer->getAddress();
 
         $this->checkPriceAndCurrency($item->getPrice(), $currency->getCode());
 
-        $body = array(
-            'price'             => $item->getPrice(),
-            'currency'          => $currency->getCode(),
-            'posData'           => $invoice->getPosData(),
-            'notificationURL'   => $invoice->getNotificationUrl(),
-            'transactionSpeed'  => $invoice->getTransactionSpeed(),
+        $body = [
+            'price' => $item->getPrice(),
+            'currency' => $currency->getCode(),
+            'posData' => $invoice->getPosData(),
+            'notificationURL' => $invoice->getNotificationUrl(),
+            'transactionSpeed' => $invoice->getTransactionSpeed(),
             'fullNotifications' => $invoice->isFullNotifications(),
             'extendedNotifications' => $invoice->isExtendedNotifications(),
             'notificationEmail' => $invoice->getNotificationEmail(),
-            'redirectURL'       => $invoice->getRedirectUrl(),
-            'orderID'           => $invoice->getOrderId(),
-            'itemDesc'          => $item->getDescription(),
-            'itemCode'          => $item->getCode(),
-            'physical'          => $item->isPhysical(),
-            'buyerName'         => trim(sprintf('%s %s', $buyer->getFirstName(), $buyer->getLastName())),
-            'buyerAddress1'     => isset($buyerAddress[0]) ? $buyerAddress[0] : '',
-            'buyerAddress2'     => isset($buyerAddress[1]) ? $buyerAddress[1] : '',
-            'buyerCity'         => $buyer->getCity(),
-            'buyerState'        => $buyer->getState(),
-            'buyerZip'          => $buyer->getZip(),
-            'buyerCountry'      => $buyer->getCountry(),
-            'buyerEmail'        => $buyer->getEmail(),
-            'buyerPhone'        => $buyer->getPhone(),
-            'buyerNotify'       => $buyer->getNotify(),
-            'guid'              => Util::guid(),
-            'nonce'             => Util::nonce(),
-            'token'             => $this->token->getToken(),
-        );
+            'redirectURL' => $invoice->getRedirectUrl(),
+            'orderID' => $invoice->getOrderId(),
+            'itemDesc' => $item->getDescription(),
+            'itemCode' => $item->getCode(),
+            'physical' => $item->isPhysical(),
+            'buyerName' => trim(sprintf('%s %s', $buyer->getFirstName(), $buyer->getLastName())),
+            'buyerAddress1' => isset($buyerAddress[0]) ? $buyerAddress[0] : '',
+            'buyerAddress2' => isset($buyerAddress[1]) ? $buyerAddress[1] : '',
+            'buyerCity' => $buyer->getCity(),
+            'buyerState' => $buyer->getState(),
+            'buyerZip' => $buyer->getZip(),
+            'buyerCountry' => $buyer->getCountry(),
+            'buyerEmail' => $buyer->getEmail(),
+            'buyerPhone' => $buyer->getPhone(),
+            'buyerNotify' => $buyer->getNotify(),
+            'guid' => Util::guid(),
+            'nonce' => Util::nonce(),
+            'token' => $this->token->getToken(),
+        ];
 
         $request->setBody(json_encode($body));
         $this->addIdentityHeader($request);
         $this->addSignatureHeader($request);
-        $this->request  = $request;
+        $this->request = $request;
         $this->response = $this->sendRequest($request);
 
         $body = $this->parseResponse();
@@ -195,13 +191,12 @@ class Client implements ClientInterface
     /**
      * @inheritdoc
      */
-    public function getCurrencies()
-    {
+    public function getCurrencies() {
         $this->request = $this->createNewRequest();
         $this->request->setMethod(Request::METHOD_GET);
         $this->request->setPath('currencies');
         $this->response = $this->sendRequest($this->request);
-        $body           = json_decode($this->response->getBody(), true);
+        $body = json_decode($this->response->getBody(), TRUE);
         if (empty($body['data'])) {
             throw new \BTCPayServer\Client\BTCPayServerException('Error with request: no data returned');
         }
@@ -227,50 +222,53 @@ class Client implements ClientInterface
     /**
      * @inheritdoc
      */
-    public function createPayout(PayoutInterface $payout)
-    {
+    public function createPayout(PayoutInterface $payout) {
         $request = $this->createNewRequest();
         $request->setMethod($request::METHOD_POST);
         $request->setPath('payouts');
 
-        $amount         = $payout->getAmount();
-        $currency       = $payout->getCurrency();
-        $effectiveDate  = $payout->getEffectiveDate();
-        $token          = $payout->getToken();
+        $amount = $payout->getAmount();
+        $currency = $payout->getCurrency();
+        $effectiveDate = $payout->getEffectiveDate();
+        $token = $payout->getToken();
 
-        $body = array(
-            'token'         => $token->getToken(),
-            'amount'        => $amount,
-            'currency'      => $currency->getCode(),
-            'instructions'  => array(),
+        $body = [
+            'token' => $token->getToken(),
+            'amount' => $amount,
+            'currency' => $currency->getCode(),
+            'instructions' => [],
             'effectiveDate' => $effectiveDate,
             'pricingMethod' => $payout->getPricingMethod(),
-            'guid'          => Util::guid(),
-            'nonce'         => Util::nonce()
-        );
+            'guid' => Util::guid(),
+            'nonce' => Util::nonce(),
+        ];
 
         // Optional
-        foreach (array('reference','notificationURL','notificationEmail') as $value) {
+        foreach ([
+                     'reference',
+                     'notificationURL',
+                     'notificationEmail',
+                 ] as $value) {
             $function = 'get' . ucfirst($value);
-            if ($payout->$function() != null) {
+            if ($payout->$function() != NULL) {
                 $body[$value] = $payout->$function();
             }
         }
 
         // Add instructions
         foreach ($payout->getInstructions() as $instruction) {
-            $body['instructions'][] = array(
-                'label'   => $instruction->getLabel(),
+            $body['instructions'][] = [
+                'label' => $instruction->getLabel(),
                 'address' => $instruction->getAddress(),
-                'amount'  => $instruction->getAmount()
-            );
+                'amount' => $instruction->getAmount(),
+            ];
         }
 
         $request->setBody(json_encode($body));
         $this->addIdentityHeader($request);
         $this->addSignatureHeader($request);
 
-        $this->request  = $request;
+        $this->request = $request;
         $this->response = $this->sendRequest($request);
         $body = $this->parseResponse();
 
@@ -291,23 +289,22 @@ class Client implements ClientInterface
     /**
      * @inheritdoc
      */
-    public function getPayouts($status = null)
-    {
+    public function getPayouts($status = NULL) {
         $request = $this->createNewRequest();
         $request->setMethod(Request::METHOD_GET);
         $path = 'payouts?token='
-                    . $this->token->getToken()
-                    . (($status == null) ? '' : '&status=' . $status);
+            . $this->token->getToken()
+            . (($status == NULL) ? '' : '&status=' . $status);
         $request->setPath($path);
 
         $this->addIdentityHeader($request);
         $this->addSignatureHeader($request);
 
-        $this->request  = $request;
+        $this->request = $request;
         $this->response = $this->sendRequest($this->request);
         $body = $this->parseResponse();
 
-        $payouts = array();
+        $payouts = [];
 
         array_walk($body['data'], function ($value, $key) use (&$payouts) {
             $payout = new \BTCPayServer\Payout();
@@ -358,8 +355,7 @@ class Client implements ClientInterface
     /**
      * @inheritdoc
      */
-    public function deletePayout(PayoutInterface $payout)
-    {
+    public function deletePayout(PayoutInterface $payout) {
         $request = $this->createNewRequest();
         $request->setMethod(Request::METHOD_DELETE);
         $request->setPath(sprintf('payouts/%s?token=%s', $payout->getId(), $payout->getResponseToken()));
@@ -367,15 +363,15 @@ class Client implements ClientInterface
         $this->addIdentityHeader($request);
         $this->addSignatureHeader($request);
 
-        $this->request  = $request;
+        $this->request = $request;
         $this->response = $this->sendRequest($this->request);
 
-        $body           = json_decode($this->response->getBody(), true);
+        $body = json_decode($this->response->getBody(), TRUE);
         if (empty($body['data'])) {
             throw new \BTCPayServer\Client\BTCPayServerException('Error with request: no data returned');
         }
 
-        $data   = $body['data'];
+        $data = $body['data'];
 
         $payout->setStatus($data['status']);
 
@@ -385,22 +381,21 @@ class Client implements ClientInterface
     /**
      * @inheritdoc
      */
-    public function getPayout($payoutId)
-    {
+    public function getPayout($payoutId) {
         $request = $this->createNewRequest();
         $request->setMethod(Request::METHOD_GET);
         $request->setPath(sprintf('payouts/%s?token=%s', $payoutId, $this->token->getToken()));
         $this->addIdentityHeader($request);
         $this->addSignatureHeader($request);
 
-        $this->request  = $request;
+        $this->request = $request;
         $this->response = $this->sendRequest($this->request);
 
-        $body           = json_decode($this->response->getBody(), true);
+        $body = json_decode($this->response->getBody(), TRUE);
         if (empty($body['data'])) {
             throw new \BTCPayServer\Client\BTCPayServerException('Error with request: no data returned');
         }
-        $data   = $body['data'];
+        $data = $body['data'];
 
         $payout = new \BTCPayServer\Payout();
         $payout
@@ -448,25 +443,24 @@ class Client implements ClientInterface
     /**
      * @inheritdoc
      */
-    public function getTokens()
-    {
+    public function getTokens() {
         $request = $this->createNewRequest();
         $request->setMethod(Request::METHOD_GET);
         $request->setPath('tokens');
         $this->addIdentityHeader($request);
         $this->addSignatureHeader($request);
 
-        $this->request  = $request;
+        $this->request = $request;
         $this->response = $this->sendRequest($this->request);
-        $body           = json_decode($this->response->getBody(), true);
+        $body = json_decode($this->response->getBody(), TRUE);
         if (empty($body['data'])) {
             throw new \BTCPayServer\Client\BTCPayServerException('Error with request: no data returned');
         }
 
-        $tokens = array();
+        $tokens = [];
 
         array_walk($body['data'], function ($value, $key) use (&$tokens) {
-            $key   = current(array_keys($value));
+            $key = current(array_keys($value));
             $value = current(array_values($value));
             $token = new \BTCPayServer\Token();
             $token
@@ -482,8 +476,7 @@ class Client implements ClientInterface
     /**
      * @inheritdoc
      */
-    public function createToken(array $payload = array())
-    {
+    public function createToken(array $payload = []) {
         if (isset($payload['pairingCode']) && 1 !== preg_match('/^[a-zA-Z0-9]{7}$/', $payload['pairingCode'])) {
             throw new \InvalidArgumentException("pairing code is not legal");
         }
@@ -493,16 +486,19 @@ class Client implements ClientInterface
         $this->request->setPath('tokens');
         $payload['guid'] = Util::guid();
         $this->request->setBody(json_encode($payload));
+        printf("/n/n/n===============================");
+        var_dump($this->request);
+        printf("/n/n/n===============================");
         $this->response = $this->sendRequest($this->request);
-        $body           = json_decode($this->response->getBody(), true);
+        $body = json_decode($this->response->getBody(), TRUE);
 
         var_dump($body);
         if (isset($body['error'])) {
-            throw new \BTCPayServer\Client\BTCPayServerException($this->response->getStatusCode().": ".$body['error']);
+            throw new \BTCPayServer\Client\BTCPayServerException($this->response->getStatusCode() . ": " . $body['error']);
         }
 
-        if($this->response->getStatusCode() >= 400) {
-            throw new BTCPayServerException('invalid status code: '. $this->response->getStatusCode());
+        if ($this->response->getStatusCode() >= 400) {
+            throw new BTCPayServerException('invalid status code: ' . $this->response->getStatusCode());
         }
 
         $tkn = $body['data'][0];
@@ -514,7 +510,7 @@ class Client implements ClientInterface
             ->setPolicies($tkn['policies'])
             ->setToken($tkn['token'])
             ->setFacade($tkn['facade'])
-            ->setCreatedAt($createdAt->setTimestamp(floor($tkn['dateCreated']/1000)));
+            ->setCreatedAt($createdAt->setTimestamp(floor($tkn['dateCreated'] / 1000)));
 
         if (isset($tkn['resource'])) {
             $token->setResource($tkn['resource']);
@@ -522,20 +518,19 @@ class Client implements ClientInterface
 
         if (isset($tkn['pairingCode'])) {
             $token->setPairingCode($tkn['pairingCode']);
-            $token->setPairingExpiration($pairingExpiration->setTimestamp(floor($tkn['pairingExpiration']/1000)));
+            $token->setPairingExpiration($pairingExpiration->setTimestamp(floor($tkn['pairingExpiration'] / 1000)));
         }
 
         return $token;
     }
 
     /**
-     * Returns the Response object that BTCPayServer returned from the request that
-     * was sent
+     * Returns the Response object that BTCPayServer returned from the request
+     * that was sent
      *
      * @return ResponseInterface
      */
-    public function getResponse()
-    {
+    public function getResponse() {
         return $this->response;
     }
 
@@ -544,27 +539,26 @@ class Client implements ClientInterface
      *
      * @return RequestInterface
      */
-    public function getRequest()
-    {
+    public function getRequest() {
         return $this->request;
     }
 
     /**
      * @inheritdoc
      */
-    public function getInvoice($invoiceId)
-    {
+    public function getInvoice($invoiceId) {
         $this->request = $this->createNewRequest();
         $this->request->setMethod(Request::METHOD_GET);
         if ($this->token && $this->token->getFacade() === 'merchant') {
             $this->request->setPath(sprintf('invoices/%s?token=%s', $invoiceId, $this->token->getToken()));
             $this->addIdentityHeader($this->request);
             $this->addSignatureHeader($this->request);
-        } else {
+        }
+        else {
             $this->request->setPath(sprintf('invoices/%s', $invoiceId));
         }
         $this->response = $this->sendRequest($this->request);
-        $body = json_decode($this->response->getBody(), true);
+        $body = json_decode($this->response->getBody(), TRUE);
 
         if (isset($body['error'])) {
             throw new BTCPayServerException($body['error']);
@@ -578,17 +572,14 @@ class Client implements ClientInterface
         return $invoice;
     }
 
-
-
-
-
+    
     /**
      * @param RequestInterface $request
+     *
      * @return ResponseInterface
      */
-    public function sendRequest(RequestInterface $request)
-    {
-        if (null === $this->adapter) {
+    public function sendRequest(RequestInterface $request) {
+        if (NULL === $this->adapter) {
             // Uses the default adapter
             $this->adapter = new \BTCPayServer\Client\Adapter\CurlAdapter();
         }
@@ -599,9 +590,8 @@ class Client implements ClientInterface
     /**
      * @param RequestInterface $request
      */
-    protected function addIdentityHeader(RequestInterface $request)
-    {
-        if (null === $this->publicKey) {
+    protected function addIdentityHeader(RequestInterface $request) {
+        if (NULL === $this->publicKey) {
             throw new \BTCPayServer\Client\BTCPayServerException('Please set your Public Key.');
         }
 
@@ -611,9 +601,8 @@ class Client implements ClientInterface
     /**
      * @param RequestInterface $request
      */
-    protected function addSignatureHeader(RequestInterface $request)
-    {
-        if (null === $this->privateKey) {
+    protected function addSignatureHeader(RequestInterface $request) {
+        if (NULL === $this->privateKey) {
             throw new BTCPayServerException('Please set your Private Key');
         }
 
@@ -632,18 +621,20 @@ class Client implements ClientInterface
     /**
      * @return RequestInterface
      */
-    protected function createNewRequest()
-    {
+    protected function createNewRequest() {
         $request = new Request();
 
         var_dump($this->uri);
 
-        $host = parse_url($this->uri,PHP_URL_HOST);
-        $port = parse_url($this->uri,PHP_URL_PORT);
-        $scheme = parse_url($this->uri,PHP_URL_SCHEME);
+        $host = parse_url($this->uri, PHP_URL_HOST);
+        $port = parse_url($this->uri, PHP_URL_PORT);
+        $scheme = parse_url($this->uri, PHP_URL_SCHEME);
 
         $request->setHost($host);
-        $request->setPort(80);
+        if($port !== null){
+            $request->setPort($port);
+        }
+
         $request->setScheme($scheme);
         $this->prepareRequestHeaders($request);
 
@@ -655,8 +646,7 @@ class Client implements ClientInterface
      *
      * @param RequestInterface $request
      */
-    protected function prepareRequestHeaders(RequestInterface $request)
-    {
+    protected function prepareRequestHeaders(RequestInterface $request) {
         // @see http://en.wikipedia.org/wiki/User_agent
         $request->setHeader(
             'User-Agent',
@@ -667,17 +657,18 @@ class Client implements ClientInterface
         $request->setHeader('X-Accept-Version', '2.0.0');
     }
 
-    protected function checkPriceAndCurrency($price, $currency)
-    {
+    protected function checkPriceAndCurrency($price, $currency) {
         $decimalPosition = strpos($price, '.');
         if ($decimalPosition == 0) {
             $decimalPrecision = 0;
-        } else {
+        }
+        else {
             $decimalPrecision = strlen(substr($price, $decimalPosition + 1));
         }
         if ($currency !== 'BTC' && $decimalPrecision > 2) {
             throw new \BTCPayServer\Client\BTCPayServerException('Incorrect price format or currency type.');
-        } elseif ($decimalPrecision > 6) {
+        }
+        elseif ($decimalPrecision > 6) {
             throw new \BTCPayServer\Client\BTCPayServerException('Incorrect price format or currency type.');
         }
     }
@@ -686,20 +677,20 @@ class Client implements ClientInterface
      * @return array
      * @throws \Exception
      */
-    private function parseResponse()
-    {
+    private function parseResponse() {
         $bodyString = $this->response->getBody();
-        if($this->response->getStatusCode() === 401){
+        if ($this->response->getStatusCode() === 401) {
             throw new \Exception($bodyString);
         }
-        $body = json_decode($bodyString, true);
-        $error_message = false;
+        $body = json_decode($bodyString, TRUE);
+        $error_message = FALSE;
         $error_message = (!empty($body['error'])) ? $body['error'] : $error_message;
         $error_message = (!empty($body['errors'])) ? $body['errors'] : $error_message;
         $error_message = (is_array($error_message)) ? implode("\n", $error_message) : $error_message;
-        if (false !== $error_message) {
+        if (FALSE !== $error_message) {
             throw new \BTCPayServer\Client\BTCPayServerException($error_message);
         }
         return $body;
     }
+
 }

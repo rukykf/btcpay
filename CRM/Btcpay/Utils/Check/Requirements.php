@@ -1,14 +1,4 @@
 <?php
-/**
- * Description
- *
- * @package ${NAMESPACE}
- * @since 1.0.0
- * @author Kofi Oghenerukevwe Henrietta
- * @link http://github.com/rukykf
- * @license GPL-2.0+
- *
- */
 
 use CRM_Btcpay_ExtensionUtil as E;
 

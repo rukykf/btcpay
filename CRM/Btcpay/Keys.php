@@ -79,7 +79,7 @@ class CRM_Btcpay_Keys {
     return TRUE;
   }
 
-  public static function pair($processorId, $pairingCode) {
+  public static function pair($processorId, $pairingCode, $label) {
     /**
      * To load up keys that you have previously saved, you need to use the same
      * storage engine. You also need to tell it the location of the key you want
@@ -100,7 +100,14 @@ class CRM_Btcpay_Keys {
      * from BTCPay. This can be updated or changed as long as it implements the
      * AdapterInterface
      */
-    $adapter = new \BTCPayServer\Client\Adapter\CurlAdapter();
+    $curl_options = [
+      CURLOPT_SSL_VERIFYPEER => FALSE,
+      CURLOPT_SSL_VERIFYHOST => 0,
+      CURLOPT_HTTPPROXYTUNNEL => TRUE,
+    ];
+
+    $adapter = new CRM_Btcpay_Utils_GuzzleAdapter();
+
     /**
      * Now all the objects are created and we can inject them into the client
      */
@@ -110,6 +117,7 @@ class CRM_Btcpay_Keys {
       'id' => $processorId,
     ]);
 
+    var_dump($btcpay);
     /**
      * Visit the url for your self-hosted BTCPay server and create a new pairing code. Pairing
      * codes can only be used once and the generated code is valid for only 24 hours.
@@ -120,21 +128,26 @@ class CRM_Btcpay_Keys {
      * be refactor and this part may become obsolete.
      */
     $sin = \BTCPayServer\SinKey::create()->setPublicKey($publicKey)->generate();
+    var_dump($sin);
+    printf("/n/n=============================");
+
     /**** end ****/
     try {
       //
       var_dump($btcpay);
-      $client->setUri($btcpay["values"][0]["url_site"] . "tokens");
+      $client->setUri($btcpay["values"][0]["url_site"]);
       $client->setPrivateKey($privateKey);
       $client->setPublicKey($publicKey);
       $client->setAdapter($adapter);
 
       $token = $client->createToken(
         [
+          'id' => (string) $sin,
           'pairingCode' => $pairingCode,
-          'label' => 'pairing03',
+          'label' => $label,
         ]
       );
+
     } catch (\Exception $e) {
       /**
        * The code will throw an exception if anything goes wrong, if you did not

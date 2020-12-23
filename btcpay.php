@@ -174,7 +174,7 @@ function bitpay_civicrm_buildForm($formName, &$form) {
     case 'CRM_Event_Form_Registration_Confirm':
     case 'CRM_Contribute_Form_Contribution_Confirm':
       // Confirm Contribution (check details and confirm)
-      $form->assign('btcpayServerUrl', $paymentProcessor["url_site_default"]);
+      $form->assign('btcpayServerUrl', $paymentProcessor["url_site"]);
       CRM_Core_Region::instance('contribution-confirm-billing-block')
         ->update('default', ['disabled' => TRUE]);
       CRM_Core_Region::instance('contribution-confirm-billing-block')
