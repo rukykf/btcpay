@@ -40,6 +40,8 @@ class CRM_Core_Payment_BtcpayIPN extends CRM_Core_Payment_BaseIPN {
     $invoice = $client->getInvoice($ipnData->id);
     $this->_invoice = $invoice;
 
+    Civi::log()->debug(print_r($invoice));
+
     // FIXME: this is for debug, we could remove it...
     $invoiceId = $invoice->getId();
     $invoiceStatus = $invoice->getStatus();
