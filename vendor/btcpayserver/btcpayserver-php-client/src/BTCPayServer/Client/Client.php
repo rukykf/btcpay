@@ -558,8 +558,8 @@ class Client implements ClientInterface {
             $this->request->setPath(sprintf('invoices/%s', $invoiceId));
         }
         $this->response = $this->sendRequest($this->request);
-        Civi::log()->debug("=====================================================Client Get Invoice");
-        Civi::log()->debug(print_r($this->response));
+        \Civi::log()->debug("=====================================================Client Get Invoice");
+        \Civi::log()->debug(print_r($this->response));
 
         $body = json_decode($this->response->getBody(), TRUE);
 
