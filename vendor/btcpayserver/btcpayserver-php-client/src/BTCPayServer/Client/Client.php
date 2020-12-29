@@ -559,13 +559,13 @@ class Client implements ClientInterface {
         else {
             $this->request->setPath(sprintf('invoices/%s', $invoiceId));
         }
-        \Civi::log()->debug(print_r($this->request));
+        \Civi::log()->debug(print_r($this->request, TRUE));
         $this->response = $this->sendRequest($this->request);
-        \Civi::log()->debug(print_r($this->response));
+        \Civi::log()->debug(print_r($this->response, TRUE));
 
         $body = json_decode($this->response->getBody(), TRUE);
 
-        \Civi::log()->debug(print_r($body));
+        \Civi::log()->debug(print_r($body, TRUE));
         if (isset($body['error'])) {
             throw new BTCPayServerException($body['error']);
         }
