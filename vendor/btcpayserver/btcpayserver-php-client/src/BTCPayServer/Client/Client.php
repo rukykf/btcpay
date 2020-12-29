@@ -547,6 +547,8 @@ class Client implements ClientInterface {
      * @inheritdoc
      */
     public function getInvoice($invoiceId) {
+        \Civi::log()
+            ->debug("=====================================================Client Get Invoice");
         $this->request = $this->createNewRequest();
         $this->request->setMethod(Request::METHOD_GET);
         if ($this->token && $this->token->getFacade() === 'merchant') {
@@ -557,9 +559,8 @@ class Client implements ClientInterface {
         else {
             $this->request->setPath(sprintf('invoices/%s', $invoiceId));
         }
+        \Civi::log()->debug(print_r($this->request));
         $this->response = $this->sendRequest($this->request);
-        \Civi::log()
-            ->debug("=====================================================Client Get Invoice");
         \Civi::log()->debug(print_r($this->response));
 
         $body = json_decode($this->response->getBody(), TRUE);
