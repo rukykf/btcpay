@@ -1,7 +1,3 @@
-${btcpayServerUrl}
-
-<script src="${btcpayServerUrl}/modal/btcpay.js"></script>
-
 <div class="crm-group credit_card-group">
   <div class="header-dark">
     {ts}Payment Information{/ts}
@@ -9,7 +5,7 @@ ${btcpayServerUrl}
   <div class="crm-section crm-btcpay-block">
     <div class="crm-btcpay" id="btcpay-trxnid" style="display: none">{$btcpayTrxnId}</div>
     <a id="btcpay-payment-link" href="javascript:void(0)" onclick="btcpay.showInvoice('{$btcpayTrxnId}')">
-      <img  src="${btcpayServerUrl}/img/paybutton/pay.svg" alt="Pay with BTCPay" style="padding: 30px" />
+      <img  src="{$btcpayServerUrl}/img/paybutton/pay.svg" alt="Pay with BTCPay" style="padding: 30px" />
     </a>
   </div>
 </div>

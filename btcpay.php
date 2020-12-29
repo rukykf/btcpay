@@ -1,7 +1,7 @@
 <?php
 
 require_once 'btcpay.civix.php';
-require_once __DIR__.'/vendor/autoload.php';
+require_once __DIR__ . '/vendor/autoload.php';
 
 // phpcs:disable
 use CRM_Btcpay_ExtensionUtil as E;
@@ -156,12 +156,13 @@ function btcpay_civicrm_check(&$messages) {
 
 /**
  * Add {payment_library}.js to forms, for payment processor handling
- * hook_civicrm_alterContent is not called for all forms (eg. CRM_Contribute_Form_Contribution on backend)
+ * hook_civicrm_alterContent is not called for all forms (eg.
+ * CRM_Contribute_Form_Contribution on backend)
  *
  * @param string $formName
  * @param CRM_Core_Form $form
  */
-function bitpay_civicrm_buildForm($formName, &$form) {
+function btcpay_civicrm_buildForm($formName, &$form) {
   if (!isset($form->_paymentProcessor)) {
     return;
   }
@@ -173,12 +174,18 @@ function bitpay_civicrm_buildForm($formName, &$form) {
   switch ($formName) {
     case 'CRM_Event_Form_Registration_Confirm':
     case 'CRM_Contribute_Form_Contribution_Confirm':
+      Civi::log()->debug("====================================MODIFYING CONFIRMATION FORM");
       // Confirm Contribution (check details and confirm)
       $form->assign('btcpayServerUrl', $paymentProcessor["url_site"]);
-      CRM_Core_Region::instance('contribution-confirm-billing-block')
-        ->update('default', ['disabled' => TRUE]);
-      CRM_Core_Region::instance('contribution-confirm-billing-block')
-        ->add(['template' => 'Btcpaycontribution-confirm-billing-block.tpl']);
+      Civi::resources()
+        ->addScriptUrl("https://btcserver.btcpay0p.fsf.org/modal/btcpay.js", [
+          'region' => 'html-header',
+          'weight' => 100,
+        ]);
+            CRM_Core_Region::instance('contribution-confirm-billing-block')
+              ->update('default', ['disabled' => TRUE]);
+            CRM_Core_Region::instance('contribution-confirm-billing-block')
+              ->add(['template' => 'Btcpaycontribution-confirm-billing-block.tpl']);
       break;
 
     case 'CRM_Event_Form_Registration_ThankYou':
@@ -201,7 +208,12 @@ function bitpay_civicrm_buildForm($formName, &$form) {
         $trxnId = CRM_Utils_Array::first($contribution['values'])['trxn_id'];
       }
       $form->assign('btcpayTrxnId', $trxnId);
-      $form->assign('btcpayServerUrl', $paymentProcessor["url_site_default"]);
+      $form->assign('btcpayServerUrl', $paymentProcessor["url_site"]);
+      Civi::resources()
+        ->addScriptUrl("https://btcserver.btcpay0p.fsf.org/modal/btcpay.js", [
+          'region' => 'html-header',
+          'weight' => 100,
+        ]);
       CRM_Core_Region::instance($billingBlockRegion)
         ->update('default', ['disabled' => TRUE]);
       CRM_Core_Region::instance($billingBlockRegion)
