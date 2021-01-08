@@ -486,13 +486,11 @@ class Client implements ClientInterface {
         $this->request->setPath('tokens');
         $payload['guid'] = Util::guid();
         $this->request->setBody(json_encode($payload));
-        printf("/n/n/n===============================");
-        var_dump($this->request);
-        printf("/n/n/n===============================");
+
         $this->response = $this->sendRequest($this->request);
         $body = json_decode($this->response->getBody(), TRUE);
 
-        var_dump($body);
+
         if (isset($body['error'])) {
             throw new \BTCPayServer\Client\BTCPayServerException($this->response->getStatusCode() . ": " . $body['error']);
         }
