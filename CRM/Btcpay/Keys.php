@@ -145,6 +145,7 @@ class CRM_Btcpay_Keys {
           'id' => (string) $sin,
           'pairingCode' => $pairingCode,
           'label' => $label,
+          'facade' => 'merchant'
         ]
       );
 
