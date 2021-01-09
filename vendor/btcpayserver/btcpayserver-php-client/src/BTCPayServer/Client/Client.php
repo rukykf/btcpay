@@ -545,8 +545,6 @@ class Client implements ClientInterface {
      * @inheritdoc
      */
     public function getInvoice($invoiceId) {
-        \Civi::log()
-            ->debug("=====================================================Client Get Invoice");
         $this->request = $this->createNewRequest();
         $this->request->setMethod(Request::METHOD_GET);
         if ($this->token && $this->token->getFacade() === 'merchant') {
@@ -557,13 +555,11 @@ class Client implements ClientInterface {
         else {
             $this->request->setPath(sprintf('invoices/%s', $invoiceId));
         }
-        \Civi::log()->debug(print_r($this->request, TRUE));
+
         $this->response = $this->sendRequest($this->request);
-        \Civi::log()->debug(print_r($this->response, TRUE));
 
         $body = json_decode($this->response->getBody(), TRUE);
-
-        \Civi::log()->debug(print_r($body, TRUE));
+        
         if (isset($body['error'])) {
             throw new BTCPayServerException($body['error']);
         }
@@ -627,8 +623,6 @@ class Client implements ClientInterface {
      */
     protected function createNewRequest() {
         $request = new Request();
-
-        var_dump($this->uri);
 
         $host = parse_url($this->uri, PHP_URL_HOST);
         $port = parse_url($this->uri, PHP_URL_PORT);

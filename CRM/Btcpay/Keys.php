@@ -192,6 +192,7 @@ class CRM_Btcpay_Keys {
     civicrm_api3('PaymentProcessor', 'create', [
       'id' => $processorId,
       'signature' => $persistThisValue,
+      
     ]);
 
     return $persistThisValue;
