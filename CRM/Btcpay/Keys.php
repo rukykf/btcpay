@@ -117,7 +117,6 @@ class CRM_Btcpay_Keys {
       'id' => $processorId,
     ]);
 
-    var_dump($btcpay);
     /**
      * Visit the url for your self-hosted BTCPay server and create a new pairing code. Pairing
      * codes can only be used once and the generated code is valid for only 24 hours.
@@ -128,13 +127,9 @@ class CRM_Btcpay_Keys {
      * be refactor and this part may become obsolete.
      */
     $sin = \BTCPayServer\SinKey::create()->setPublicKey($publicKey)->generate();
-    var_dump($sin);
-    printf("/n/n=============================");
 
     /**** end ****/
     try {
-      //
-      var_dump($btcpay);
       $client->setUri($btcpay["values"][0]["url_site"]);
       $client->setPrivateKey($privateKey);
       $client->setPublicKey($publicKey);
@@ -192,7 +187,7 @@ class CRM_Btcpay_Keys {
     civicrm_api3('PaymentProcessor', 'create', [
       'id' => $processorId,
       'signature' => $persistThisValue,
-      
+
     ]);
 
     return $persistThisValue;

@@ -46,7 +46,7 @@ class CRM_Core_Payment_BtcpayIPN extends CRM_Core_Payment_BaseIPN {
     $invoice = $client->getInvoice($ipnData->id);
     $this->_invoice = $invoice;
 
-    Civi::log()->debug(print_r($invoice));
+    Civi::log()->debug(print_r($invoice, TRUE));
 
     // FIXME: this is for debug, we could remove it...
     $invoiceId = $invoice->getId();
@@ -101,7 +101,7 @@ class CRM_Core_Payment_BtcpayIPN extends CRM_Core_Payment_BaseIPN {
           'trxn_date' => $this::$_now,
           'is_email_receipt' => 0,
         ]);
-        break;
+        return TRUE;
 
       case \BTCPayServer\Invoice::STATUS_COMPLETE:
         // Check if the contribution was already completed and if not, complete it
@@ -153,7 +153,6 @@ class CRM_Core_Payment_BtcpayIPN extends CRM_Core_Payment_BaseIPN {
   }
 
   private function exception($message) {
-    fwrite(STDERR, "\n\n" . $message . "\n\n");
     $errorMessage = 'BtcpayIPN Exception: Error: ' . $message;
     Civi::log()->debug($errorMessage);
     http_response_code(400);

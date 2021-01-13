@@ -174,7 +174,12 @@ function btcpay_civicrm_buildForm($formName, &$form) {
   switch ($formName) {
     case 'CRM_Event_Form_Registration_Confirm':
     case 'CRM_Contribute_Form_Contribution_Confirm':
-      Civi::log()->debug("====================================MODIFYING CONFIRMATION FORM");
+      if (!isset($formType)) {
+        $formType = "contribution";
+      }
+
+      Civi::log()
+        ->debug("====================================MODIFYING CONFIRMATION FORM");
       // Confirm Contribution (check details and confirm)
       $form->assign('btcpayServerUrl', $paymentProcessor["url_site"]);
       Civi::resources()
@@ -182,10 +187,10 @@ function btcpay_civicrm_buildForm($formName, &$form) {
           'region' => 'html-header',
           'weight' => 100,
         ]);
-            CRM_Core_Region::instance('contribution-confirm-billing-block')
-              ->update('default', ['disabled' => TRUE]);
-            CRM_Core_Region::instance('contribution-confirm-billing-block')
-              ->add(['template' => 'Btcpaycontribution-confirm-billing-block.tpl']);
+      CRM_Core_Region::instance("${formType}-confirm-billing-block")
+        ->update('default', ['disabled' => TRUE]);
+      CRM_Core_Region::instance("${formType}-confirm-billing-block")
+        ->add(['template' => 'Btcpaycontribution-confirm-billing-block.tpl']);
       break;
 
     case 'CRM_Event_Form_Registration_ThankYou':

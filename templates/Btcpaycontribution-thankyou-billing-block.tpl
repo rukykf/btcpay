@@ -2,6 +2,9 @@
   <div class="header-dark">
     {ts}Payment Information{/ts}
   </div>
+  <div>
+    Something goes here
+  </div>
   <div class="crm-section crm-btcpay-block">
     <div class="crm-btcpay" id="btcpay-trxnid" style="display: none">{$btcpayTrxnId}</div>
     <a id="btcpay-payment-link" href="javascript:void(0)" onclick="btcpay.showInvoice('{$btcpayTrxnId}')">
