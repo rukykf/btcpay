@@ -32,7 +32,7 @@ class CRM_Core_Payment_Btcpay extends CRM_Core_Payment {
    *   The error message if any.
    */
   public function checkConfig() {
-    $error = array();
+    $error = [];
 
     if (empty($this->_paymentProcessor['password'])) {
       $error[] = ts('The decryption password has not been set.');
@@ -48,6 +48,7 @@ class CRM_Core_Payment_Btcpay extends CRM_Core_Payment {
 
   /**
    * We can use the btcpay processor on the backend
+   *
    * @return bool
    */
   public function supportsBackOffice() {
@@ -56,6 +57,7 @@ class CRM_Core_Payment_Btcpay extends CRM_Core_Payment {
 
   /**
    * We can edit recurring contributions
+   *
    * @return bool
    */
   public function supportsEditRecurringContribution() {
@@ -64,6 +66,7 @@ class CRM_Core_Payment_Btcpay extends CRM_Core_Payment {
 
   /**
    * We can configure a start date
+   *
    * @return bool
    */
   public function supportsFutureRecurStartDate() {
@@ -81,8 +84,9 @@ class CRM_Core_Payment_Btcpay extends CRM_Core_Payment {
   }
 
   /**
-   * Return an array of all the details about the fields potentially required for payment fields.
-   * Only those determined by getPaymentFormFields will actually be assigned to the form
+   * Return an array of all the details about the fields potentially required
+   * for payment fields. Only those determined by getPaymentFormFields will
+   * actually be assigned to the form
    *
    * @return array
    *   field metadata
@@ -113,7 +117,6 @@ class CRM_Core_Payment_Btcpay extends CRM_Core_Payment {
   /**
    * Process payment
    * Submit a payment using Btcpay's PHP API:
-   * //TODO put correct link to BTCPayServer client code
    *
    * Payment processors should set payment_status_id and trxn_id (if available).
    *
@@ -129,9 +132,10 @@ class CRM_Core_Payment_Btcpay extends CRM_Core_Payment {
    * @throws \CiviCRM_API3_Exception
    */
   public function doPayment(&$params, $component = 'contribute') {
+    Civi::log()->debug(print_r($component, TRUE));
+    Civi::log()->debug(print_r($params, TRUE));
     // Get the btcpay client object
     $client = $this->_client->getClient();
-    print_r($params);
     /**
      * This is where we will start to create an Invoice object, make sure to check
      * the InvoiceInterface for methods that you can use.
@@ -155,10 +159,13 @@ class CRM_Core_Payment_Btcpay extends CRM_Core_Payment {
 
     $invoice->setCurrency(new \BTCPayServer\Currency($this->getCurrency($params)));
     // Configure the rest of the invoice
-    $invoice
-      ->setOrderId($params['contributionID'])
-      // You will receive IPN's at this URL, should be HTTPS for security purposes!
-      ->setNotificationUrl($this->getNotifyUrl());
+
+    if ($component === 'contribute') {
+      $invoice->setOrderId($params['contributionID']);
+    }
+
+    // You will receive IPN's at this URL, should be HTTPS for security purposes!
+    $invoice->setNotificationUrl($this->getNotifyUrl());
     /**
      * Updates invoice with new information such as the invoice id and the URL where
      * a customer can view the invoice.
@@ -166,15 +173,16 @@ class CRM_Core_Payment_Btcpay extends CRM_Core_Payment {
     try {
       $client->createInvoice($invoice);
     } catch (\Exception $e) {
-      $msg = "Btcpay doPayment Exception occured: " . $e->getMessage().PHP_EOL;
-      $request  = $client->getRequest();
+      $msg = "Btcpay doPayment Exception occured: " . $e->getMessage() . PHP_EOL;
+      $request = $client->getRequest();
       $response = $client->getResponse();
-      $msg .= (string) $request.PHP_EOL.PHP_EOL.PHP_EOL;
-      $msg .= (string) $response.PHP_EOL.PHP_EOL;
+      $msg .= (string) $request . PHP_EOL . PHP_EOL . PHP_EOL;
+      $msg .= (string) $response . PHP_EOL . PHP_EOL;
       Civi::log()->debug($msg);
-      Throw new CRM_Core_Exception($msg);
+      throw new CRM_Core_Exception($msg);
     }
-    Civi::log()->debug('invoice created: ' . $invoice->getId(). '" url: ' . $invoice->getUrl() . ' Verbose details: ' . print_r($invoice, TRUE));
+    Civi::log()
+      ->debug('invoice created: ' . $invoice->getId() . '" url: ' . $invoice->getUrl() . ' Verbose details: ' . print_r($invoice, TRUE));
 
     // Success!
     // For contribution workflow we have a contributionId so we can set parameters directly.
@@ -191,6 +199,7 @@ class CRM_Core_Payment_Btcpay extends CRM_Core_Payment {
     }
     $params = array_merge($params, $newParams);
 
+
     return $params;
 
   }
@@ -198,8 +207,9 @@ class CRM_Core_Payment_Btcpay extends CRM_Core_Payment {
   /**
    * Default payment instrument validation.
    *
-   * Implement the usual Luhn algorithm via a static function in the CRM_Core_Payment_Form if it's a credit card
-   * Not a static function, because I need to check for payment_type.
+   * Implement the usual Luhn algorithm via a static function in the
+   * CRM_Core_Payment_Form if it's a credit card Not a static function, because
+   * I need to check for payment_type.
    *
    * @param array $values
    * @param array $errors

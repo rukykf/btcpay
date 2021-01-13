@@ -27,7 +27,7 @@ class CRM_Btcpay_Client {
     $storageEngine = new \BTCPayServer\Storage\EncryptedFilesystemStorage(CRM_Btcpay_Keys::getKeyPassword($this->_paymentProcessor['id'])); // Password may need to be updated if you changed it
     $privateKey = $storageEngine->load(CRM_Btcpay_Keys::getKeyPath($this->_paymentProcessor['id']));
     $publicKey = $storageEngine->load(CRM_Btcpay_Keys::getKeyPath($this->_paymentProcessor['id'], FALSE));
-    $client = new \BTCPayServer\Client\Client();
+    $client = new CRM_BTCPayServer_Client();
     $adapter = new CRM_Btcpay_Utils_GuzzleAdapter();
     $client->setPrivateKey($privateKey);
     $client->setPublicKey($publicKey);

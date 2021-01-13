@@ -6,7 +6,7 @@
     'aliases' => 
     array (
     ),
-    'reference' => 'f98a9aa7695573a5c28ab59eeb3460cfa2bab650',
+    'reference' => '309af2a1f67280e795dcc22df31284eae5d51476',
     'name' => '__root__',
   ),
   'versions' => 
@@ -18,7 +18,7 @@
       'aliases' => 
       array (
       ),
-      'reference' => 'f98a9aa7695573a5c28ab59eeb3460cfa2bab650',
+      'reference' => '309af2a1f67280e795dcc22df31284eae5d51476',
     ),
     'btcpayserver/btcpayserver-php-client' => 
     array (
