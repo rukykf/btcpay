@@ -54,7 +54,7 @@ class CRM_Core_Payment_BtcpayIPNTest extends \PHPUnit\Framework\TestCase impleme
 
   public function testBtcpayGeneratesBtcpayInvoiceOnContributionPage() {
     $paymentProcessor = $this->getBtcpayPaymentProcessor();
-    $contactInfo = $this->createContactForContribution();
+    $contactInfo = $this->createDemoContact();
 
     $form = new CRM_Contribute_Form_Contribution();
     $form->_mode = 'Live';
@@ -78,6 +78,15 @@ class CRM_Core_Payment_BtcpayIPNTest extends \PHPUnit\Framework\TestCase impleme
 
     $this->assertNotNull($contribution['trxn_id']);
   }
+
+  public function testBtcpaySetsParticipantStatusToPendingAfterSubmittingEventRegistrationForm(){
+    $paymentProcessor = $this->getBtcpayPaymentProcessor();
+    $contactInfo = $this->createDemoContact();
+
+    $form = new CRM_Event_Form_Registration();
+  }
+
+  public function testBtcpaySetsContributionStatusToPendingAfterSubmittingEventRegistrationForm(){}
 
   /** This test works by retrieving the first pending btcpay contribution it finds
    * and triggering the IPN script using the transaction id of that
@@ -120,6 +129,10 @@ class CRM_Core_Payment_BtcpayIPNTest extends \PHPUnit\Framework\TestCase impleme
     $this->assertEquals(1, $oldestContribution['contribution_status_id']); // contribution is Completed
   }
 
+  public function testBtcpayIPNUpdatesEventParticipantStatusAfterPayment(){}
+
+  public function testBtcpayIPNUpdatesEventContributionStatusAfterPayment(){}
+
   private function getBtcpayPaymentProcessor() {
     $params = [
       'is_test' => 0,
@@ -129,7 +142,7 @@ class CRM_Core_Payment_BtcpayIPNTest extends \PHPUnit\Framework\TestCase impleme
     return $this->callAPISuccessGetSingle("PaymentProcessor", $params);
   }
 
-  private function createContactForContribution() {
+  private function createDemoContact() {
     $params = [
       'sequential' => 1,
       'first_name' => "some",

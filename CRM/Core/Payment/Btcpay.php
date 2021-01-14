@@ -160,9 +160,7 @@ class CRM_Core_Payment_Btcpay extends CRM_Core_Payment {
     $invoice->setCurrency(new \BTCPayServer\Currency($this->getCurrency($params)));
     // Configure the rest of the invoice
 
-    if ($component === 'contribute') {
-      $invoice->setOrderId($params['contributionID']);
-    }
+    $invoice->setOrderId($params['invoiceID']);
 
     // You will receive IPN's at this URL, should be HTTPS for security purposes!
     $invoice->setNotificationUrl($this->getNotifyUrl());
@@ -179,18 +177,14 @@ class CRM_Core_Payment_Btcpay extends CRM_Core_Payment {
       $msg .= (string) $request . PHP_EOL . PHP_EOL . PHP_EOL;
       $msg .= (string) $response . PHP_EOL . PHP_EOL;
       Civi::log()->debug($msg);
-      throw new CRM_Core_Exception($msg);
+      throw new Civi\Payment\Exception\PaymentProcessorException($msg);
     }
     Civi::log()
       ->debug('invoice created: ' . $invoice->getId() . '" url: ' . $invoice->getUrl() . ' Verbose details: ' . print_r($invoice, TRUE));
 
-    // Success!
     // For contribution workflow we have a contributionId so we can set parameters directly.
-    // For events/membership workflow we have to return the parameters and they might get set...
     $newParams['trxn_id'] = $invoice->getId();
     $newParams['payment_status_id'] = CRM_Core_PseudoConstant::getKey('CRM_Contribute_BAO_Contribution', 'contribution_status_id', 'Pending');
-    // $newParams['fee_amount'] = ...
-    // $newParams['net_amount'] = ...
 
     if ($this->getContributionId($params)) {
       $newParams['id'] = $this->getContributionId($params);
