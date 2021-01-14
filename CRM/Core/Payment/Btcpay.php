@@ -186,6 +186,15 @@ class CRM_Core_Payment_Btcpay extends CRM_Core_Payment {
     $newParams['trxn_id'] = $invoice->getId();
     $newParams['payment_status_id'] = CRM_Core_PseudoConstant::getKey('CRM_Contribute_BAO_Contribution', 'contribution_status_id', 'Pending');
 
+    try{
+      $contributionFromInvoiceRef = civicrm_api3('Contribution', 'getsingle', [
+        "invoice_id" => $params["invoiceID"]
+      ]);
+      Civi::log()->debug("printed contribution===========\n\n" . print_r($contributionFromInvoiceRef, TRUE));
+    }catch(\Exception $e){
+      Civi::log()->("Could not retrieve the contribution with invoice reference");
+    }
+
     if ($this->getContributionId($params)) {
       $newParams['id'] = $this->getContributionId($params);
       civicrm_api3('Contribution', 'create', $newParams);
