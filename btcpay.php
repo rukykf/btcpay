@@ -227,16 +227,16 @@ function btcpay_civicrm_buildForm($formName, &$form) {
   }
 }
 
-// --- Functions below this ship commented out. Uncomment as required. ---
-
 /**
- * Implements hook_civicrm_preProcess().
- *
- * @link https://docs.civicrm.org/dev/en/latest/hooks/hook_civicrm_preProcess
+ * Implements hook_civicrm_postProcess().
  */
-//function btcpay_civicrm_preProcess($formName, &$form) {
-//
-//}
+function btcpay_civicrm_postProcess($formName, &$form) {
+  switch ($formName) {
+    case 'CRM_Event_Form_Registration_Confirm':
+      Civi::log()->debug("DEBUGGING EVENT POST PROCESS ================ \n\n");
+      Civi::log()->debug(print_r($form, TRUE));
+  }
+}
 
 /**
  * Implements hook_civicrm_navigationMenu().
