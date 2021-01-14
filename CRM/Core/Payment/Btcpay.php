@@ -192,7 +192,7 @@ class CRM_Core_Payment_Btcpay extends CRM_Core_Payment {
       ]);
       Civi::log()->debug("printed contribution===========\n\n" . print_r($contributionFromInvoiceRef, TRUE));
     }catch(\Exception $e){
-      Civi::log()->("Could not retrieve the contribution with invoice reference");
+      Civi::log()->debug("Could not retrieve the contribution with invoice reference");
     }
 
     if ($this->getContributionId($params)) {
