@@ -96,15 +96,19 @@ class CRM_Core_Payment_BtcpayIPN extends CRM_Core_Payment_BaseIPN {
 
       case \BTCPayServer\Invoice::STATUS_CONFIRMED:
         // Mark payment as completed
-        civicrm_api3('Contribution', 'completetransaction', [
+        $result = civicrm_api3('Contribution', 'completetransaction', [
           'id' => $this->getContributionId(),
           'trxn_date' => $this::$_now,
           'is_email_receipt' => 0,
         ]);
+
         return TRUE;
 
       case \BTCPayServer\Invoice::STATUS_COMPLETE:
         // Check if the contribution was already completed and if not, complete it
+        // this code is here to make it easier to run e2e tests which might get triggered
+        // when an invoice has already been marked "complete" instead of "confirmed"
+
         $contribution = civicrm_api3('Contribution', 'getsingle', [
           'id' => $this->getContributionId(),
         ]);
