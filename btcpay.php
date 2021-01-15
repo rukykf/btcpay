@@ -173,42 +173,62 @@ function btcpay_civicrm_buildForm($formName, &$form) {
 
   switch ($formName) {
     case 'CRM_Event_Form_Registration_Confirm':
+      Civi::log()
+        ->debug("====================================MODIFYING EVENT CONFIRMATION FORM");
+      $form->assign('btcpayServerUrl', $paymentProcessor["url_site"]);
+      Civi::resources()->add(
+        [
+          'template' => 'Btcpaycontribution-confirm-billing-block.tpl',
+          'region' => 'event-page-eventinfo-actionlinks-top',
+        ]
+      );
+      break;
+
     case 'CRM_Contribute_Form_Contribution_Confirm':
       if (!isset($formType)) {
         $formType = "contribution";
       }
 
       Civi::log()
-        ->debug("====================================MODIFYING CONFIRMATION FORM");
-      // Confirm Contribution (check details and confirm)
+        ->debug("====================================MODIFYING CONTRIBUTION CONFIRMATION FORM");
+      $form->assign('btcpayServerUrl', $paymentProcessor["url_site"]);
+
+      CRM_Core_Region::instance("${formType}-confirm-billing-block")
+        ->update('default', ['disabled' => TRUE]);
+      CRM_Core_Region::instance("${formType}-confirm-billing-block")
+        ->add([
+          'template' => 'Btcpaycontribution-confirm-billing-block.tpl',
+          'region' => 'page-body',
+        ]);
+      break;
+
+    case 'CRM_Event_Form_Registration_ThankYou':
+      $trxnId = isset($form->trxnId) ? $form->trxnId : NULL;
+      $form->assign('btcpayTrxnId', $trxnId);
       $form->assign('btcpayServerUrl', $paymentProcessor["url_site"]);
       Civi::resources()
         ->addScriptUrl("https://btcserver.btcpay0p.fsf.org/modal/btcpay.js", [
           'region' => 'html-header',
           'weight' => 100,
         ]);
-      CRM_Core_Region::instance("${formType}-confirm-billing-block")
-        ->update('default', ['disabled' => TRUE]);
-      CRM_Core_Region::instance("${formType}-confirm-billing-block")
-        ->add(['template' => 'Btcpaycontribution-confirm-billing-block.tpl']);
+      Civi::resources()->add(
+        ['template' => 'Btcpaycontribution-thankyou-billing-block.tpl']
+      );
       break;
-
-    case 'CRM_Event_Form_Registration_ThankYou':
-      $billingBlockRegion = 'event-thankyou-billing-block';
     case 'CRM_Contribute_Form_Contribution_ThankYou':
       if (!isset($billingBlockRegion)) {
         $billingBlockRegion = 'contribution-thankyou-billing-block';
       }
-      // Contribution /Event Thankyou form
-      // Add the bitpay invoice handling
-      $contributionParams = [
-        'contact_id' => $form->_contactID,
-        'total_amount' => $form->_amount,
-        'contribution_test' => '',
-        'options' => ['limit' => 1, 'sort' => ['id DESC']],
-      ];
+      // Contribution Thankyou form
+      // Add the Btcpay invoice handling
       $trxnId = isset($form->trxnId) ? $form->trxnId : NULL;
       if (empty($trxnId)) {
+        $contributionParams = [
+          'contact_id' => $form->_contactID,
+          'total_amount' => $form->_amount,
+          'contribution_test' => '',
+          'options' => ['limit' => 1, 'sort' => ['id DESC']],
+        ];
         $contribution = civicrm_api3('Contribution', 'get', $contributionParams);
         $trxnId = CRM_Utils_Array::first($contribution['values'])['trxn_id'];
       }
@@ -233,8 +253,78 @@ function btcpay_civicrm_buildForm($formName, &$form) {
 function btcpay_civicrm_postProcess($formName, &$form) {
   switch ($formName) {
     case 'CRM_Event_Form_Registration_Confirm':
-      Civi::log()->debug("DEBUGGING EVENT POST PROCESS ================ \n\n");
+      Civi::log()
+        ->debug("====================================UPDATING PARTICIPANT AND CONTRIBUTION STATUS FOR EVENT\n");
       Civi::log()->debug(print_r($form, TRUE));
+
+      // update the Contribution and Participants' status for the event to Pending
+      $contributionId = CRM_Utils_Array::value("contributionId", $form->_values);
+      $participantParams = CRM_Utils_Array::value("participant", $form->_values);
+
+
+      $mainParticipant = $participantParams;
+      $participants = [];
+
+      if (isset($participantParams["participant_registered_by_id"])) {
+        // get the main participant who did the registering
+        $mainParticipant = civicrm_api3("Participant", "getsingle", [
+          "id" => $participantParams["participant_registered_by_id"],
+        ]);
+
+        // get participants that were registered by the main participant
+        $result = civicrm_api3('Participant', 'get', [
+          'sequential' => 1,
+          'registered_by_id' => $mainParticipant["id"],
+        ]);
+        $participants = $result["values"];
+      }
+
+      $participants[] = $mainParticipant;
+
+      Civi::log()->debug("\nPARTICIPANTS\n" . print_r($participants, TRUE));
+      // update all the participants' status to pending - incomplete transaction
+      foreach ($participants as $participant) {
+        $participantParams = [
+          "id" => $participant["id"],
+          "status_id" => 6,
+        ];
+        civicrm_api3('Participant', 'create', $participantParams);
+      }
+
+
+      // delete the former contribution and create a new pending one
+      // the api won't allow me directly update the status of the contribution, this is the only way to do it.
+
+      $contributionParams = [
+        "id" => $contributionId,
+        "sequential" => 1,
+      ];
+
+      $contribution = civicrm_api3('Contribution', 'getsingle', $contributionParams);
+      Civi::log()->debug("\nCONTRIBUTION\n" . print_r($contribution, TRUE));
+
+      civicrm_api3("Contribution", "delete", $contributionParams);
+
+      $newContribution = $contribution;
+      $newContribution["contribution_status_id"] = 2;
+
+      unset($newContribution["id"]);
+      unset($newContribution["contribution_id"]);
+      unset($newContribution["contribution_status"]);
+      Civi::log()
+        ->debug("\nNEW CONTRIBUTION\n" . print_r($newContribution, TRUE));
+      $newContribution = civicrm_api3("Contribution", "create", $newContribution);
+
+      Civi::log()
+        ->debug("\nRESULT OF CONTRIBUTION CREATE\n" . print_r($newContribution, TRUE));
+      $result = civicrm_api3('ParticipantPayment', 'create', [
+        'participant_id' => $mainParticipant["id"],
+        'contribution_id' => $newContribution["id"],
+      ]);
+
+      Civi::log()
+        ->debug("\nPARTICIPANT PAYMENT\n" . print_r($result, TRUE));
+
   }
 }
 

@@ -5,40 +5,17 @@ use Civi\Test\EndToEndInterface;
 use Civi\Test\Api3TestTrait;
 
 /**
- * FIXME - Add test description.
- *
- * Tips:
- *  - The global variable $_CV has some properties which may be useful, such
- * as:
- *    CMS_URL, ADMIN_USER, ADMIN_PASS, ADMIN_EMAIL, DEMO_USER, DEMO_PASS,
- * DEMO_EMAIL.
- *  - To spawn a new CiviCRM thread and execute an API call or PHP code, use
- * cv(), e.g. cv('api system.flush');
- *      $data = cv('eval "return Civi::settings()->get(\'foobar\')"');
- *      $dashboardUrl = cv('url civicrm/dashboard');
- *  - This template uses the most generic base-class, but you may want to use a
- * more powerful base class, such as \PHPUnit_Extensions_SeleniumTestCase or
- *    \PHPUnit_Extensions_Selenium2TestCase.
- *    See also: https://phpunit.de/manual/4.8/en/selenium.html
+ * Test for the Btcpay extension.
  *
  * @group e2e
  * @see cv
  */
-class CRM_Core_Payment_BtcpayIPNTest extends \PHPUnit\Framework\TestCase implements EndToEndInterface {
+class CRM_Core_Payment_BtcpayTest extends \PHPUnit\Framework\TestCase implements EndToEndInterface {
 
   use Api3TestTrait;
 
   public static function setUpBeforeClass() {
-    // See: https://docs.civicrm.org/dev/en/latest/testing/phpunit/#civitest
-
-    // Example: Install this extension. Don't care about anything else.
     \Civi\Test::e2e()->apply();
-
-    // Example: Uninstall all extensions except this one.
-    // \Civi\Test::e2e()->uninstall('*')->installMe(__DIR__)->apply();
-
-    // Example: Install only core civicrm extensions.
-    // \Civi\Test::e2e()->uninstall('*')->install('org.civicrm.*')->apply();
   }
 
   public function setUp() {
@@ -49,9 +26,19 @@ class CRM_Core_Payment_BtcpayIPNTest extends \PHPUnit\Framework\TestCase impleme
     parent::tearDown();
   }
 
-  // this test assumes that there is only one Btcpay payment processor and it attempts to retrieve that
-  // using CiviCRM's getsingle action. If there are more than one Btcpay payment processors then this will not work
-
+  /**
+   * BEFORE RUNNING THE TEST
+   * Ensure you've created ONLY one live payment processor of type Btcpay on the
+   * local installation of CiviCRM
+   * (the installation this extension is installed on).
+   *
+   * This code will throw an exception if it finds anything but exactly 1
+   * Btcpay payment processors.
+   *
+   * @throws \CRM_Core_Exception
+   * @throws \CiviCRM_API3_Exception
+   * @throws \Civi\Payment\Exception\PaymentProcessorException
+   */
   public function testBtcpayGeneratesBtcpayInvoiceOnContributionPage() {
     $paymentProcessor = $this->getBtcpayPaymentProcessor();
     $contactInfo = $this->createDemoContact();
@@ -79,17 +66,10 @@ class CRM_Core_Payment_BtcpayIPNTest extends \PHPUnit\Framework\TestCase impleme
     $this->assertNotNull($contribution['trxn_id']);
   }
 
-  public function testBtcpaySetsParticipantStatusToPendingAfterSubmittingEventRegistrationForm(){
-    $paymentProcessor = $this->getBtcpayPaymentProcessor();
-    $contactInfo = $this->createDemoContact();
 
-    $form = new CRM_Event_Form_Registration();
-  }
-
-  public function testBtcpaySetsContributionStatusToPendingAfterSubmittingEventRegistrationForm(){}
-
-  /** This test works by retrieving the first pending btcpay contribution it finds
-   * and triggering the IPN script using the transaction id of that
+  /**
+   * This test works by retrieving the first pending btcpay contribution it
+   * finds and triggering the IPN script using the transaction id of that
    * contribution
    *
    * BEFORE RUNNING THE TEST:
@@ -127,12 +107,31 @@ class CRM_Core_Payment_BtcpayIPNTest extends \PHPUnit\Framework\TestCase impleme
       'id' => $oldestContribution['id'],
     ]);
     $this->assertEquals(1, $oldestContribution['contribution_status_id']); // contribution is Completed
+
   }
 
-  public function testBtcpayIPNUpdatesEventParticipantStatusAfterPayment(){}
+  /**
+   * BEFORE RUNNING TEST
+   * Ensure there is at least one event in the local installation of CiviCRM
+   * (the installation this extension is installed on)
+   *
+   */
+  public function testEventConfirmationFormPostProcessUpdatesParticipantStatus() {
 
-  public function testBtcpayIPNUpdatesEventContributionStatusAfterPayment(){}
+  }
 
+  /**
+   * BEFORE RUNNING TEST
+   * Ensure there is at least one event in the local installation of CiviCRM
+   * (the installation this extension is installed on)
+   *
+   */
+  public function testEventConfirmationFormPostProcessUpdatesContributionStatus() {
+
+  }
+
+
+  //===HELPER METHODS FOR CREATING AND GETTING TEST DATA
   private function getBtcpayPaymentProcessor() {
     $params = [
       'is_test' => 0,

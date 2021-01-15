@@ -134,7 +134,7 @@ class CRM_Core_Payment_Btcpay extends CRM_Core_Payment {
   public function doPayment(&$params, $component = 'contribute') {
     Civi::log()->debug(print_r($component, TRUE));
     Civi::log()->debug(print_r($params, TRUE));
-    // Get the btcpay client object
+
     $client = $this->_client->getClient();
     /**
      * This is where we will start to create an Invoice object, make sure to check
@@ -186,15 +186,6 @@ class CRM_Core_Payment_Btcpay extends CRM_Core_Payment {
     $newParams['trxn_id'] = $invoice->getId();
     $newParams['payment_status_id'] = CRM_Core_PseudoConstant::getKey('CRM_Contribute_BAO_Contribution', 'contribution_status_id', 'Pending');
 
-    try{
-      $contributionFromInvoiceRef = civicrm_api3('Contribution', 'getsingle', [
-        "invoice_id" => $params["invoiceID"]
-      ]);
-      Civi::log()->debug("printed contribution===========\n\n" . print_r($contributionFromInvoiceRef, TRUE));
-    }catch(\Exception $e){
-      Civi::log()->debug("Could not retrieve the contribution with invoice reference");
-    }
-
     if ($this->getContributionId($params)) {
       $newParams['id'] = $this->getContributionId($params);
       civicrm_api3('Contribution', 'create', $newParams);
@@ -224,7 +215,6 @@ class CRM_Core_Payment_Btcpay extends CRM_Core_Payment {
 
   /**
    * Process incoming payment notification (IPN).
-   * https://bitpay.com/docs/invoice-callbacks //TODO put correct link in here
    *
    * @throws \CRM_Core_Exception
    * @throws \CiviCRM_API3_Exception
