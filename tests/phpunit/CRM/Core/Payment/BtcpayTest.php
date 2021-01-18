@@ -348,7 +348,6 @@ class CRM_Core_Payment_BtcpayTest extends \PHPUnit\Framework\TestCase implements
   }
 
 
-  //===HELPER METHODS FOR CREATING AND GETTING TEST DATA
   private function getBtcpayPaymentProcessor() {
     $params = [
       'is_test' => 0,
