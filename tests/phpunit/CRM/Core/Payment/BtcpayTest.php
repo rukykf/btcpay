@@ -116,7 +116,158 @@ class CRM_Core_Payment_BtcpayTest extends \PHPUnit\Framework\TestCase implements
    * (the installation this extension is installed on)
    *
    */
-  public function testEventConfirmationFormPostProcessUpdatesParticipantStatus() {
+  public function testEventConfirmationFormPostProcessSetsParticipantStatusToPending() {
+    $result = $this->callAPISuccess('Event', 'get', [
+      'sequential' => 1,
+    ]);
+
+    $event = CRM_Utils_Array::first($result["values"]);
+
+    $contact = $this->createDemoContact();
+    $participantParams = [
+      'event_id' => $event["id"],
+      'contact_id' => $contact["id"],
+      'status_id' => 1,
+    ];
+    $participant = $this->callAPISuccess('Participant', 'create', $participantParams);
+
+
+    // create a pending contribution
+    $transactionId = date("Y-m-d") . mt_rand();
+    $contributionParams = [
+      'financial_type_id' => "Donation",
+      'receive_date' => "2021-01-18 18:16:09",
+      'total_amount' => 10,
+      'contact_id' => $contact["id"],
+      'currency' => "USD",
+      'trxn_id' => $transactionId,
+      'invoice_id' => $transactionId . "Ref",
+      'contribution_status_id' => 2,
+    ];
+    $contribution = $this->callAPISuccess('Contribution', 'create', $contributionParams);
+
+
+    // complete the contribution's transaction - this creates a Payment / Financial Transaction entity
+    $result = $this->callAPISuccess('Contribution', 'completetransaction', [
+      'id' => $contribution["id"],
+    ]);
+
+    // link the contribution to the participant
+    $result = $this->callAPISuccess('ParticipantPayment', 'create', [
+      'participant_id' => $participant["id"],
+      'contribution_id' => $contribution["id"],
+    ]);
+
+    $formName = 'CRM_Event_Form_Registration_Confirm';
+    $form = new stdClass();
+    $form->_values = [
+      "contributionId" => $contribution["id"],
+      "participant" => $participant,
+    ];
+
+    btcpay_civicrm_postProcess($formName, $form);
+    $updatedParticipant = $this->callAPISuccess('Participant', 'getsingle', [
+      'id' => $participant["id"],
+    ]);
+
+    $this->assertEquals("Pending (incomplete transaction)", $updatedParticipant["participant_status"]);
+    $this->assertEquals(6, $updatedParticipant["participant_status_id"]);
+  }
+
+  /**
+   * BEFORE RUNNING TEST
+   * Ensure there is at least one event in the local installation of CiviCRM
+   * (the installation this extension is installed on)
+   *
+   * This test is just like the previous test but it's for scenarios where
+   * there's a main participant who registered other participants + themselves
+   *
+   */
+  public function testEventConfirmationFormPostProcessSetsAllParticipantStatusToPending() {
+    $result = $this->callAPISuccess('Event', 'get', [
+      'sequential' => 1,
+    ]);
+
+    $event = CRM_Utils_Array::first($result["values"]);
+
+    $contact = $this->createDemoContact();
+    $mainParticipantParams = [
+      'event_id' => $event["id"],
+      'contact_id' => $contact["id"],
+      'status_id' => 1,
+    ];
+    $mainParticipant = $this->callAPISuccess('Participant', 'create', $mainParticipantParams);
+
+    $participantIds = [];
+
+    // create 3 other participants who are registered by the main participant
+    for ($i = 0; $i < 3; $i++) {
+      $contact = $this->createDemoContact();
+      $participantParams = [
+        'event_id' => $event["id"],
+        'contact_id' => $contact["id"],
+        'status_id' => 1,
+        'registered_by_id' => $mainParticipant["id"],
+      ];
+      $participant = $this->callAPISuccess('Participant', 'create', $participantParams);
+      $participantIds[] = $participant["id"];
+    }
+
+    // create a pending contribution
+    $transactionId = date("Y-m-d") . mt_rand();
+    $contributionParams = [
+      'financial_type_id' => "Donation",
+      'receive_date' => "2021-01-18 18:16:09",
+      'total_amount' => 10,
+      'contact_id' => $contact["id"],
+      'currency' => "USD",
+      'trxn_id' => $transactionId,
+      'invoice_id' => $transactionId . "Ref",
+      'contribution_status_id' => 2,
+    ];
+    $contribution = $this->callAPISuccess('Contribution', 'create', $contributionParams);
+
+
+    // complete the contribution's transaction - this creates a Payment / Financial Transaction entity
+    $result = $this->callAPISuccess('Contribution', 'completetransaction', [
+      'id' => $contribution["id"],
+    ]);
+
+    // link the contribution to the main participant
+    $result = $this->callAPISuccess('ParticipantPayment', 'create', [
+      'participant_id' => $mainParticipant["id"],
+      'contribution_id' => $contribution["id"],
+    ]);
+
+    $formName = 'CRM_Event_Form_Registration_Confirm';
+    $form = new stdClass();
+
+    // set the participant in this form to any of the other participants because this is what Civi would do
+    // before calling the postProcess hook
+
+    $secondRegisteredParticipant = $this->callAPISuccess('Participant', 'getsingle', [
+      "id" => $participantIds[0],
+    ]);
+
+    $form->_values = [
+      "contributionId" => $contribution["id"],
+      "participant" => $secondRegisteredParticipant,
+    ];
+
+    btcpay_civicrm_postProcess($formName, $form);
+
+    // add the main participant's Id to the $participantIds array
+    // and assert that all the participants' status has been updated
+    $participantIds[] = $mainParticipant["id"];
+
+    foreach ($participantIds as $participantId) {
+      $updatedParticipant = $this->callAPISuccess('Participant', 'getsingle', [
+        'id' => $participantId,
+      ]);
+
+      $this->assertEquals("Pending (incomplete transaction)", $updatedParticipant["participant_status"]);
+      $this->assertEquals(6, $updatedParticipant["participant_status_id"]);
+    }
 
   }
 
@@ -126,8 +277,74 @@ class CRM_Core_Payment_BtcpayTest extends \PHPUnit\Framework\TestCase implements
    * (the installation this extension is installed on)
    *
    */
-  public function testEventConfirmationFormPostProcessUpdatesContributionStatus() {
+  public function testEventConfirmationFormPostProcessSetsContributionStatusToPending() {
+    $result = $this->callAPISuccess('Event', 'get', [
+      'sequential' => 1,
+    ]);
 
+    $event = CRM_Utils_Array::first($result["values"]);
+
+    $contact = $this->createDemoContact();
+    $participantParams = [
+      'event_id' => $event["id"],
+      'contact_id' => $contact["id"],
+      'status_id' => 1,
+    ];
+    $participant = $this->callAPISuccess('Participant', 'create', $participantParams);
+
+
+    // create a pending contribution
+    $transactionId = date("Y-m-d") . mt_rand();
+    $contributionParams = [
+      'financial_type_id' => "Donation",
+      'receive_date' => "2021-01-18 18:16:09",
+      'total_amount' => 10,
+      'contact_id' => $contact["id"],
+      'currency' => "USD",
+      'trxn_id' => $transactionId,
+      'invoice_id' => $transactionId . "Ref",
+      'contribution_status_id' => 2,
+    ];
+    $contribution = $this->callAPISuccess('Contribution', 'create', $contributionParams);
+
+
+    // complete the contribution's transaction - this creates a Payment / Financial Transaction entity
+    $result = $this->callAPISuccess('Contribution', 'completetransaction', [
+      'id' => $contribution["id"],
+    ]);
+
+    // link the contribution to the participant
+    $result = $this->callAPISuccess('ParticipantPayment', 'create', [
+      'participant_id' => $participant["id"],
+      'contribution_id' => $contribution["id"],
+    ]);
+
+    $formName = 'CRM_Event_Form_Registration_Confirm';
+    $form = new stdClass();
+    $form->_values = [
+      "contributionId" => $contribution["id"],
+      "participant" => $participant,
+    ];
+
+    btcpay_civicrm_postProcess($formName, $form);
+
+    // the postProcess ought to delete the original contributon and create a new pending one.
+
+    // attempt to retrieve the original contribution and confirm it's deleted
+    $result = $this->callAPISuccess('Contribution', 'get', [
+      'sequential' => 1,
+      'id' => $contribution["id"],
+    ]);
+
+    $this->assertEquals(0, count($result["values"]));
+
+    // retrieve the new contribution using the unique transaction id
+    $updatedContribution = $this->callAPISuccess('Contribution', 'getsingle', [
+      'trxn_id' => $transactionId,
+    ]);
+
+    $this->assertEquals(2, $updatedContribution["contribution_status_id"]);
+    $this->assertEquals("Pending", $updatedContribution["contribution_status"]);
   }
 
 

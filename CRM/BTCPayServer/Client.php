@@ -12,7 +12,9 @@ class CRM_BTCPayServer_Client extends \BTCPayServer\Client\Client {
 
   /**
    * Override the default createNewRequest from the BTCPayServer client
-   * To fix a bug in the way BTCPayServer creates its
+   * To fix a bug in the way BTCPayServer creates it
+   * Will probably submit a pull request to the BTCPayServer project with this
+   * fix
    *
    * @return \BTCPayServer\Client\Request
    */
