@@ -2,8 +2,16 @@
   <div class="header-dark">
     {ts}Payment Information{/ts}
   </div>
-  <div>
-    Replace with Bitcoin Address and a link to a page after payment is made.
+  <div class="display-block">
+    <p>You can click the button below (requires Javascript) to copy the Bitcoin Address you'll need to complete this
+      transaction.</p>
+    <p>You can also use the following details to make payment</p><br/>
+    <p>
+      {ts}Payment Url{/ts}: <a href="{$btcpayPaymentUrl}" target="_blank"><strong>{$btcpayPaymentUrl}</strong></a><br/>
+      {ts}Bitcoin Due{/ts}: <strong>{$btcpayBtcDue}</strong><br/>
+      {ts}Pay into this BTC Address{/ts}: <strong>{$btcpayBitcoinAddress}</strong><br/>
+      {ts}BTC to {$btcpayCurrency} Rate{/ts}: <strong>{$btcpayRate}</strong><br/>
+    </p>
   </div>
   <div class="crm-section crm-btcpay-block">
     <div class="crm-btcpay" id="btcpay-trxnid" style="display: none">{$btcpayTrxnId}</div>

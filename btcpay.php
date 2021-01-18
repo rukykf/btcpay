@@ -194,10 +194,7 @@ function btcpay_civicrm_buildForm($formName, &$form) {
     case 'CRM_Contribute_Form_Contribution_ThankYou':
       Civi::log()
         ->debug("====================================MODIFYING CONTRIBUTION THANK YOU FORM");
-      Civi::log()
-        ->debug("\n\n" . print_r($form, TRUE));
-      Civi::log()
-        ->debug("\n\n" . print_r("\n\n" . "transactionId\n" . $form->_trxnId, TRUE));
+
       if (!isset($billingBlockRegion)) {
         $billingBlockRegion = 'contribution-thankyou-billing-block';
       }
@@ -214,8 +211,20 @@ function btcpay_civicrm_buildForm($formName, &$form) {
         $contribution = civicrm_api3('Contribution', 'get', $contributionParams);
         $trxnId = CRM_Utils_Array::first($contribution['values'])['trxn_id'];
       }
+
+      $client = new CRM_Btcpay_Client($form->_paymentProcessor);
+      $paymentInfo = $client->getClient()->getInvoicePaymentInfo($trxnId);
+
+
       $form->assign('btcpayTrxnId', $trxnId);
       $form->assign('btcpayServerUrl', $paymentProcessor["url_site"]);
+      $form->assign('btcpayPaymentUrl', $paymentInfo['paymentUrl']);
+      $form->assign('btcpayBtcPrice', $paymentInfo['btcPrice']);
+      $form->assign('btcpayBtcDue', $paymentInfo['btcDue']);
+      $form->assign('btcpayBitcoinAddress', $paymentInfo['bitcoinAddress']);
+      $form->assign('btcpayCurrency', $paymentInfo['currency']);
+      $form->assign('btcpayRate', $paymentInfo['rate']);
+
       Civi::resources()
         ->addScriptUrl("https://btcserver.btcpay0p.fsf.org/modal/btcpay.js", [
           'region' => 'html-header',
