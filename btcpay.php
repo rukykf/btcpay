@@ -175,54 +175,36 @@ function btcpay_civicrm_buildForm($formName, &$form) {
     case 'CRM_Event_Form_Registration_Confirm':
       Civi::log()
         ->debug("====================================MODIFYING EVENT CONFIRMATION FORM");
-      $form->assign('btcpayServerUrl', $paymentProcessor["url_site"]);
-      Civi::resources()->add(
-        [
-          'template' => 'Btcpaycontribution-confirm-billing-block.tpl',
-          'region' => 'event-page-eventinfo-actionlinks-top',
-        ]
-      );
-      break;
-
     case 'CRM_Contribute_Form_Contribution_Confirm':
-      if (!isset($formType)) {
-        $formType = "contribution";
-      }
-
       Civi::log()
         ->debug("====================================MODIFYING CONTRIBUTION CONFIRMATION FORM");
       $form->assign('btcpayServerUrl', $paymentProcessor["url_site"]);
 
-      CRM_Core_Region::instance("${formType}-confirm-billing-block")
-        ->update('default', ['disabled' => TRUE]);
-      CRM_Core_Region::instance("${formType}-confirm-billing-block")
-        ->add([
+      Civi::resources()->add(
+        [
           'template' => 'Btcpaycontribution-confirm-billing-block.tpl',
-          'region' => 'page-body',
-        ]);
+          'region' => 'form-top',
+        ]
+      );
       break;
 
     case 'CRM_Event_Form_Registration_ThankYou':
-      $trxnId = isset($form->trxnId) ? $form->trxnId : NULL;
-      $form->assign('btcpayTrxnId', $trxnId);
-      $form->assign('btcpayServerUrl', $paymentProcessor["url_site"]);
-      Civi::resources()
-        ->addScriptUrl("https://btcserver.btcpay0p.fsf.org/modal/btcpay.js", [
-          'region' => 'html-header',
-          'weight' => 100,
-        ]);
-      Civi::resources()->add(
-        ['template' => 'Btcpaycontribution-thankyou-billing-block.tpl']
-      );
-      break;
+      Civi::log()
+        ->debug("====================================MODIFYING EVENT THANK YOU FORM");
     case 'CRM_Contribute_Form_Contribution_ThankYou':
+      Civi::log()
+        ->debug("====================================MODIFYING CONTRIBUTION THANK YOU FORM");
+      Civi::log()
+        ->debug("\n\n" . print_r($form, TRUE));
+      Civi::log()
+        ->debug("\n\n" . print_r("\n\n" . "transactionId\n" . $form->_trxnId, TRUE));
       if (!isset($billingBlockRegion)) {
         $billingBlockRegion = 'contribution-thankyou-billing-block';
       }
       // Contribution Thankyou form
       // Add the Btcpay invoice handling
-      $trxnId = isset($form->trxnId) ? $form->trxnId : NULL;
-      if (empty($trxnId)) {
+      $trxnId = isset($form->_trxnId) ? $form->_trxnId : NULL;
+      if (empty($trxnId) && $formName == "CRM_Contribute_Form_Contribution_ThankYou") {
         $contributionParams = [
           'contact_id' => $form->_contactID,
           'total_amount' => $form->_amount,
@@ -239,10 +221,12 @@ function btcpay_civicrm_buildForm($formName, &$form) {
           'region' => 'html-header',
           'weight' => 100,
         ]);
-      CRM_Core_Region::instance($billingBlockRegion)
-        ->update('default', ['disabled' => TRUE]);
-      CRM_Core_Region::instance($billingBlockRegion)
-        ->add(['template' => 'Btcpaycontribution-thankyou-billing-block.tpl']);
+      Civi::resources()->add(
+        [
+          'template' => 'Btcpaycontribution-thankyou-billing-block.tpl',
+          'region' => 'form-top',
+        ]
+      );
       break;
   }
 }
@@ -255,7 +239,6 @@ function btcpay_civicrm_postProcess($formName, &$form) {
     case 'CRM_Event_Form_Registration_Confirm':
       Civi::log()
         ->debug("====================================UPDATING PARTICIPANT AND CONTRIBUTION STATUS FOR EVENT\n");
-      Civi::log()->debug(print_r($form, TRUE));
 
       // update the Contribution and Participants' status for the event to Pending
       $contributionId = CRM_Utils_Array::value("contributionId", $form->_values);
@@ -281,7 +264,6 @@ function btcpay_civicrm_postProcess($formName, &$form) {
 
       $participants[] = $mainParticipant;
 
-      Civi::log()->debug("\nPARTICIPANTS\n" . print_r($participants, TRUE));
       // update all the participants' status to pending - incomplete transaction
       foreach ($participants as $participant) {
         $participantParams = [
@@ -297,13 +279,14 @@ function btcpay_civicrm_postProcess($formName, &$form) {
 
       $contributionParams = [
         "id" => $contributionId,
-        "sequential" => 1,
       ];
 
       $contribution = civicrm_api3('Contribution', 'getsingle', $contributionParams);
-      Civi::log()->debug("\nCONTRIBUTION\n" . print_r($contribution, TRUE));
 
       civicrm_api3("Contribution", "delete", $contributionParams);
+
+      Civi::log()
+        ->debug("\n" . "CONTRIBUTION ARRAY" . "\n\n" . print_r($contribution, TRUE));
 
       $newContribution = $contribution;
       $newContribution["contribution_status_id"] = 2;
@@ -311,36 +294,14 @@ function btcpay_civicrm_postProcess($formName, &$form) {
       unset($newContribution["id"]);
       unset($newContribution["contribution_id"]);
       unset($newContribution["contribution_status"]);
-      Civi::log()
-        ->debug("\nNEW CONTRIBUTION\n" . print_r($newContribution, TRUE));
+      unset($newContribution["amount_level"]);
+
       $newContribution = civicrm_api3("Contribution", "create", $newContribution);
 
-      Civi::log()
-        ->debug("\nRESULT OF CONTRIBUTION CREATE\n" . print_r($newContribution, TRUE));
       $result = civicrm_api3('ParticipantPayment', 'create', [
         'participant_id' => $mainParticipant["id"],
         'contribution_id' => $newContribution["id"],
       ]);
 
-      Civi::log()
-        ->debug("\nPARTICIPANT PAYMENT\n" . print_r($result, TRUE));
-
   }
 }
-
-/**
- * Implements hook_civicrm_navigationMenu().
- *
- * @link https://docs.civicrm.org/dev/en/latest/hooks/hook_civicrm_navigationMenu
- */
-//function btcpay_civicrm_navigationMenu(&$menu) {
-//  _btcpay_civix_insert_navigation_menu($menu, 'Mailings', array(
-//    'label' => E::ts('New subliminal message'),
-//    'name' => 'mailing_subliminal_message',
-//    'url' => 'civicrm/mailing/subliminal',
-//    'permission' => 'access CiviMail',
-//    'operator' => 'OR',
-//    'separator' => 0,
-//  ));
-//  _btcpay_civix_navigationMenu($menu);
-//}
