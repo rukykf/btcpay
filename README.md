@@ -72,3 +72,18 @@ with the ID of the payment processor we created earlier as `payment_processor_id
 6. In the API Explorer, run the *Btcpay.pair* action with the payment processor ID and the pairing code you just generated as parameters.
 
 7. You should now be able to use this payment processor on any Contribution and Event Registration pages.
+
+## Running the tests
+There are some e2e tests you can run with a global installation of PHPUnit. Learn more about CiviCRM e2e tests here:
+[CiviCRM E2E Test Docs](https://docs.civicrm.org/dev/en/latest/testing/#e2e)
+
+You can run all the tests using
+```bash
+phpunit // to run all tests
+phpunit --filter testEventConfirmationFormPostProcessSetsAllParticipantStatusToPending // to run a specific test
+```
+The tests currently do not work if you attempt to run them with a composer installed phpunit package. You need a global phpunit installation to get them to work.
+
+The e2e tests all require you to have this extension installed and enabled on a CiviCRM instance.
+Each of the tests has its own unique setup requirements. So if you run the tests and find that a test is failing, read through the docs on top of the tests
+to see what you need to create / install in the CiviCRM instance to get the tests to work.
