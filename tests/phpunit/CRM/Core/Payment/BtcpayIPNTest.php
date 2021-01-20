@@ -2,6 +2,7 @@
 
 use CRM_Btcpay_ExtensionUtil as E;
 use Civi\Test\EndToEndInterface;
+use Civi\Test\Api3TestTrait;
 
 /**
  * FIXME - Add test description.
@@ -25,6 +26,8 @@ use Civi\Test\EndToEndInterface;
  */
 class CRM_Core_Payment_BtcpayIPNTest extends \PHPUnit\Framework\TestCase implements EndToEndInterface {
 
+  use Api3TestTrait;
+
   public static function setUpBeforeClass() {
     // See: https://docs.civicrm.org/dev/en/latest/testing/phpunit/#civitest
 
@@ -46,7 +49,34 @@ class CRM_Core_Payment_BtcpayIPNTest extends \PHPUnit\Framework\TestCase impleme
     parent::tearDown();
   }
 
+  // this test assumes that there is only one Btcpay payment processor and it attempts to retrieve that
+  // using CiviCRM's getsingle action. If there are more than one Btcpay payment processors then this will not work
+
   public function testBtcpayGeneratesBtcpayInvoiceOnContributionPage() {
+    $paymentProcessor = $this->getBtcpayPaymentProcessor();
+    $contactInfo = $this->createContactForContribution();
+
+    $form = new CRM_Contribute_Form_Contribution();
+    $form->_mode = 'Live';
+
+    $contribution_params = [
+      'total_amount' => 10.00,
+      'financial_type_id' => 2,
+      'contact_id' => $contactInfo['id'],
+      'contribution_status_id' => 2,
+      'payment_instrument_id' => 6,
+      'payment_processor_id' => $paymentProcessor["id"],
+      'currency' => 'USD',
+      'source' => 'Btcpay Server Bitcoin',
+    ];
+
+    $form->testSubmit($contribution_params, CRM_Core_Action::ADD);
+    $contribution = $this->callAPISuccessGetSingle('Contribution', [
+      'contact_id' => $contactInfo['id'],
+      'contribution_status_id' => 'Pending',
+    ]);
+
+    $this->assertNotNull($contribution['trxn_id']);
   }
 
   /** This test works by retrieving the first pending btcpay contribution it finds
@@ -61,7 +91,61 @@ class CRM_Core_Payment_BtcpayIPNTest extends \PHPUnit\Framework\TestCase impleme
    *
    **/
   public function testBtcpayIPNUpdatesContributionStatusAfterPayment() {
+    $paymentProcessor = $this->getBtcpayPaymentProcessor();
 
+    // just get the oldest pending bitcoin contribution
+    $params = [
+      'sequential' => 1,
+      'payment_instrument_id' => "Bitcoin",
+      'contribution_status_id' => "Pending",
+    ];
+    $contributionsData = $this->callAPISuccess("Contribution", "get", $params);
+
+    $oldestContribution = $contributionsData["values"][0];
+
+    $this->assertEquals(2, $oldestContribution['contribution_status_id']); //contribution is Pending
+
+    $ipnData = $this->getIPNData($oldestContribution['trxn_id'], $paymentProcessor["id"]);
+
+    $ipn = new CRM_Core_Payment_BtcpayIPN($ipnData);
+    $output = $ipn->main();
+
+    $this->assertTrue($output);
+
+    // check that the contribution's status was updated to completed
+    // should work so long as the invoice has been paid and confirmed on the btcpay server
+    $oldestContribution = civicrm_api3('Contribution', 'getsingle', [
+      'id' => $oldestContribution['id'],
+    ]);
+    $this->assertEquals(1, $oldestContribution['contribution_status_id']); // contribution is Completed
+  }
+
+  private function getBtcpayPaymentProcessor() {
+    $params = [
+      'is_test' => 0,
+      'payment_processor_type_id' => "btcpay",
+    ];
+
+    return $this->callAPISuccessGetSingle("PaymentProcessor", $params);
+  }
+
+  private function createContactForContribution() {
+    $params = [
+      'sequential' => 1,
+      'first_name' => "some",
+      'last_name' => "person",
+      'contact_type' => "Individual",
+    ];
+
+    return $this->callAPISuccess('contact', 'create', $params);
+  }
+
+  private function getIPNData($invoiceId, $paymentProcessorId) {
+    $ipnData = new stdClass();
+    $ipnData->id = $invoiceId;
+    $ipnData->paymentProcessorId = $paymentProcessorId;
+    $ipnData->status = 'complete';
+    return $ipnData;
   }
 
 }
