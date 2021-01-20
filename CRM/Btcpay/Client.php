@@ -39,10 +39,12 @@ class CRM_Btcpay_Client {
      */
     $token = new \BTCPayServer\Token();
     $token->setToken($this->_paymentProcessor['signature']);
+    $token->setFacade("merchant");
     /**
      * Token object is injected into the client
      */
     $client->setToken($token);
+
     return $client;
   }
 
