@@ -1,11 +1,14 @@
 # BTCPay
 
-Accept Bitcoin payments by integrating CiviCRM with a self-hosted BTCPay Server.
+Payment Processor Extension to accept Bitcoin payments by integrating CiviCRM with a self-hosted BTCPay Server.
 
 It pops up an invoice (if Javascript is enabled) that shows users a Bitcoin Address where they can send funds to.
 
 The bitcoin address and bitcoin amount is also displayed on the Contribution and Events Registration Thank You Form
 pages in case the user has Javascript disabled and the invoice can't pop-up on the screen.
+
+After BTCPay Server confirms the payment and sends a notification back to the payment processor, it sends a payment receipt
+to the contributor.
 
 The extension is licensed under [AGPL-3.0](LICENSE.txt).
 
@@ -18,24 +21,14 @@ The extension is licensed under [AGPL-3.0](LICENSE.txt).
 
 This extension has not yet been published for installation via the web UI.
 
-## Installation (CLI, Zip)
-
-Sysadmins and developers may download the `.zip` file for this extension and install it with the command-line
-tool [cv](https://github.com/civicrm/cv).
-
-```bash
-cd <extension-dir>
-cv dl btcpay@https://github.com/FIXME/btcpay/archive/master.zip
-```
-
 ## Installation (CLI, Git)
 Enable and install the extension on your CiviCRM site.
 
-Sysadmins and developers may clone the [Git](https://en.wikipedia.org/wiki/Git) repo for this extension and install it
+Sysadmins and developers may clone the [Git](https://gitlab.com/rukkyfsfcontributions/btcpay-civicrm-ext.git) repo for this extension and install it
 with the command-line tool [cv](https://github.com/civicrm/cv).
 
 ```bash
-git clone https://github.com/FIXME/btcpay.git
+git clone https://gitlab.com/rukkyfsfcontributions/btcpay-civicrm-ext.git
 cv en btcpay
 ```
 
@@ -72,6 +65,11 @@ with the ID of the payment processor we created earlier as `payment_processor_id
 6. In the API Explorer, run the *Btcpay.pair* action with the payment processor ID and the pairing code you just generated as parameters.
 
 7. You should now be able to use this payment processor on any Contribution and Event Registration pages.
+
+### Receiving Membership Dues
+This extension does not support recurring and / or auto-renewable memberships. That said, users can still
+pay for their CiviMember memberships with Bitcoin using this payment processor extension. Just make sure to schedule a reminder
+to these members so they can renew their membership manually before the membership expires.
 
 ## Running the tests
 There are some e2e tests you can run with a global installation of PHPUnit. Learn more about CiviCRM e2e tests here:
