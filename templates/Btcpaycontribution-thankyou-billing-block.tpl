@@ -12,7 +12,7 @@
       {ts}Pay into this BTC Address{/ts}: <strong>{$btcpayBitcoinAddress}</strong><br/>
       {ts}BTC to {$btcpayCurrency} Rate{/ts}: <strong>{$btcpayRate}</strong><br/>
     </p>
-    <p><strong>We will send you an email after confirming your payment</strong></p>
+    <p><strong>We will send you an email with a receipt after confirming your payment</strong></p>
   </div>
   <div class="crm-section crm-btcpay-block">
     <div class="crm-btcpay" id="btcpay-trxnid" style="display: none">{$btcpayTrxnId}</div>
