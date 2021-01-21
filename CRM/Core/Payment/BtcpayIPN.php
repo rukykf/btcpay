@@ -1,6 +1,7 @@
 <?php
 
-class CRM_Core_Payment_BtcpayIPN extends CRM_Core_Payment_BaseIPN {
+class CRM_Core_Payment_BtcpayIPN extends CRM_Core_Payment_BaseIPN
+{
 
   use CRM_Core_Payment_BtcpayIPNTrait;
 
@@ -22,17 +23,18 @@ class CRM_Core_Payment_BtcpayIPN extends CRM_Core_Payment_BaseIPN {
    *
    * @throws \CRM_Core_Exception
    */
-  public function __construct($ipnData) {
+  public function __construct($ipnData)
+  {
     $this->setInputParameters($ipnData);
     parent::__construct();
   }
 
-  public function setInputParameters($ipnData) {
+  public function setInputParameters($ipnData)
+  {
     // Get the payment processor
     if (!isset($ipnData->paymentProcessorId)) {
       $this->getPaymentProcessor();
-    }
-    else {
+    } else {
       $this->getPaymentProcessorForUnitTest($ipnData->paymentProcessorId);
     }
 
@@ -64,7 +66,8 @@ class CRM_Core_Payment_BtcpayIPN extends CRM_Core_Payment_BaseIPN {
    * @return bool
    * @throws \CiviCRM_API3_Exception
    */
-  public function main() {
+  public function main()
+  {
     // First we receive an IPN with status "paid" - contribution remains pending - how do we indicate we received "paid"?
     // Then we receive an IPN with status "confirmed" - we set contribution = completed.
 
@@ -96,10 +99,21 @@ class CRM_Core_Payment_BtcpayIPN extends CRM_Core_Payment_BaseIPN {
 
       case \BTCPayServer\Invoice::STATUS_CONFIRMED:
         // Mark payment as completed
+        $contributionId = $this->getContributionId();
+
         $result = civicrm_api3('Contribution', 'completetransaction', [
-          'id' => $this->getContributionId(),
+          'id' => $contributionId,
           'trxn_date' => $this::$_now,
           'is_email_receipt' => 0,
+        ]);
+
+        // send a confirmation email to the contact who made the contribution
+        $participantPayment = civicrm_api3('Payment', 'getsingle', [
+          'contribution_id' => $contributionId,
+        ]);
+
+        civicrm_api3('Payment', 'sendconfirmation', [
+          'id' => $participantPayment["id"],
         ]);
 
         return TRUE;
@@ -128,7 +142,8 @@ class CRM_Core_Payment_BtcpayIPN extends CRM_Core_Payment_BaseIPN {
   /**
    * @return int Contribution ID
    */
-  private function getContributionId() {
+  private function getContributionId()
+  {
     try {
       return civicrm_api3('Contribution', 'getvalue', [
         'return' => "id",
@@ -150,13 +165,15 @@ class CRM_Core_Payment_BtcpayIPN extends CRM_Core_Payment_BaseIPN {
    * @throws \CiviCRM_API3_Exception
    *
    */
-  private function getPaymentProcessorForUnitTest($paymentProcessorId) {
+  private function getPaymentProcessorForUnitTest($paymentProcessorId)
+  {
     $this->_paymentProcessor = civicrm_api3('PaymentProcessor', 'getsingle', [
       'id' => $paymentProcessorId,
     ]);
   }
 
-  private function exception($message) {
+  private function exception($message)
+  {
     $errorMessage = 'BtcpayIPN Exception: Error: ' . $message;
     Civi::log()->debug($errorMessage);
     http_response_code(400);
