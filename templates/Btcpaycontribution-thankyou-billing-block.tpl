@@ -22,11 +22,18 @@
   </div>
 </div>
 
+<script src="{$btcpayServerUrl}/modal/btcpay.js">
+  // @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&dn=expat.txt MIT-Expat
+  // @license-end
+</script>
+
 {literal}
   <script type="text/javascript">
+    // @license magnet:?xt=urn:btih:0b31508aeb0634b347b8270c7bee4d411b5d4109&dn=agpl-3.0.txt AGPL-v3.0
     CRM.$(function ($) {
       CRM.$('.crm-btcpay-block').appendTo('div.crm-group.amount_display-group div.display-block');
       btcpay.showInvoice(CRM.$('#btcpay-trxnid').text());
     });
+    // @license-end
   </script>
 {/literal}

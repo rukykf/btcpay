@@ -225,11 +225,6 @@ function btcpay_civicrm_buildForm($formName, &$form) {
       $form->assign('btcpayCurrency', $paymentInfo['currency']);
       $form->assign('btcpayRate', $paymentInfo['rate']);
 
-      Civi::resources()
-        ->addScriptUrl("https://btcserver.btcpay0p.fsf.org/modal/btcpay.js", [
-          'region' => 'html-header',
-          'weight' => 100,
-        ]);
       Civi::resources()->add(
         [
           'template' => 'Btcpaycontribution-thankyou-billing-block.tpl',
