@@ -3,16 +3,32 @@
     {ts}Payment Information{/ts}
   </div>
   <div class="display-block">
-    <p>You can click the button below (requires Javascript) to copy the Bitcoin Address you'll need to complete this
-      transaction.</p>
-    <p>You can also use the following details to make payment</p><br/>
     <p>
       {ts}Payment Url{/ts}: <a href="{$btcpayPaymentUrl}" target="_blank"><strong>{$btcpayPaymentUrl}</strong></a><br/>
-      {ts}Bitcoin Due{/ts}: <strong>{$btcpayBtcDue}</strong><br/>
-      {ts}Pay into this BTC Address{/ts}: <strong>{$btcpayBitcoinAddress}</strong><br/>
-      {ts}BTC to {$btcpayCurrency} Rate{/ts}: <strong>{$btcpayRate}</strong><br/>
+      {ts}Total Amount:{/ts} <strong>{$btcpayPrice} {$btcpayCurrency}</strong><br/>
     </p>
-    <p><strong>We will send you an email with a receipt after confirming your payment</strong></p>
+    <p><strong>We will send a receipt to your email after confirming your payment</strong></p>
+
+    <p>You can click the button in the contribution section below (requires Javascript) to copy the Crypto Address you'll need to complete this
+      transaction.</p>
+    <p>You can also send crypto payment (Bitcoin and Litecoin) into any of the following addresses</p><br/>
+
+    <hr/>
+    {foreach from=$btcpayCryptoInfo item=crypto name=payment}
+      <div>
+        <p>{ts}Crypto Code{/ts}: <strong>{$crypto.cryptoCode}</strong></p>
+        <p>{ts}Amount due{/ts}: <strong>{$crypto.due} {$crypto.cryptoCode}</strong></p>
+        <p>{ts}Send payment to address{/ts}: <strong>{$crypto.address}</strong></p>
+        <p>{ts}{$btcpayCurrency} to {$crypto.cryptoCode} conversion rate{/ts}: <strong>{$crypto.rate}</strong></p>
+        <br/>
+        {if not $smarty.foreach.payment.last}
+          <strong>OR</strong>
+          <br/>
+        {/if}
+      </div>
+    {/foreach}
+
+
   </div>
   <div class="crm-section crm-btcpay-block">
     <div class="crm-btcpay" id="btcpay-trxnid" style="display: none">{$btcpayTrxnId}</div>
@@ -31,7 +47,7 @@
    * @licstart  The following is the entire license notice for the
    *  JavaScript code in this page.
    *
-   * MIT License
+   * MIT / Expat License
 
    * Copyright (c) 2017-2021 btcpayserver
 

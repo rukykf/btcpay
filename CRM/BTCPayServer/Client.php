@@ -29,18 +29,7 @@ class CRM_BTCPayServer_Client extends \BTCPayServer\Client\Client {
       throw new BTCPayServerException($body['error']);
     }
 
-    $data = $body['data'];
-
-    $paymentInfo = [
-      "paymentUrl" => $data["url"],
-      "btcPrice" => $data["btcPrice"],
-      "btcDue" => $data["btcDue"],
-      "bitcoinAddress" => $data["bitcoinAddress"],
-      "currency" => $data["currency"],
-      "rate" => $data["rate"],
-    ];
-
-    return $paymentInfo;
+    return $body['data'];
   }
 
   /**

@@ -218,12 +218,11 @@ function btcpay_civicrm_buildForm($formName, &$form) {
 
       $form->assign('btcpayTrxnId', $trxnId);
       $form->assign('btcpayServerUrl', $paymentProcessor["url_site"]);
-      $form->assign('btcpayPaymentUrl', $paymentInfo['paymentUrl']);
-      $form->assign('btcpayBtcPrice', $paymentInfo['btcPrice']);
-      $form->assign('btcpayBtcDue', $paymentInfo['btcDue']);
-      $form->assign('btcpayBitcoinAddress', $paymentInfo['bitcoinAddress']);
+
+      $form->assign('btcpayPrice', $paymentInfo['price']);
       $form->assign('btcpayCurrency', $paymentInfo['currency']);
-      $form->assign('btcpayRate', $paymentInfo['rate']);
+      $form->assign('btcpayCryptoInfo', $paymentInfo['cryptoInfo']);
+      $form->assign('btcpayPaymentUrl', $paymentInfo["url"]);
 
       Civi::resources()->add(
         [

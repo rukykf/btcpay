@@ -193,7 +193,6 @@ class CRM_Core_Payment_Btcpay extends CRM_Core_Payment {
     }
     $params = array_merge($params, $newParams);
 
-
     return $params;
 
   }
