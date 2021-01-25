@@ -52,7 +52,7 @@ set the Btcpay Server up in Testnet mode.
     * If you want to use the processor in test-mode, you will need to make sure your Btcpay server is setup in Testnet mode. This will allow you receive Testnet Bitcoin payments.
     * Enter a *"Private Key decryption password"* of your choice.
     * Enter any value for *"API Key"* - we don't use this.
-    * Don't enter anything for "Pairing token".
+    * Don't enter anything for *"Pairing token"*.
     * After creating the payment processor, take note of its ID (available on the list of Payment Processors in CiviCRM's Admin)
 
 4. Create keys for the payment processor. Go to **Support -> Developer -> API Explorer V3** and run the *Btcpay.createkeys* action

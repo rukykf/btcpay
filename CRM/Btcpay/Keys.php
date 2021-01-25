@@ -93,19 +93,13 @@ class CRM_Btcpay_Keys {
      * showing the long form here to show how various things are injected into the
      * client.
      */
-    $client = new \BTCPayServer\Client\Client();
+    $client = new CRM_BTCPayServer_Client();
 
     /**
      * The adapter is what will make the calls to the self-hosted BTCPay server and return the response
      * from BTCPay. This can be updated or changed as long as it implements the
      * AdapterInterface
      */
-    $curl_options = [
-      CURLOPT_SSL_VERIFYPEER => FALSE,
-      CURLOPT_SSL_VERIFYHOST => 0,
-      CURLOPT_HTTPPROXYTUNNEL => TRUE,
-    ];
-
     $adapter = new CRM_Btcpay_Utils_GuzzleAdapter();
 
     /**
@@ -134,6 +128,7 @@ class CRM_Btcpay_Keys {
       $client->setPrivateKey($privateKey);
       $client->setPublicKey($publicKey);
       $client->setAdapter($adapter);
+      Civi::log()->debug(print_r($client, TRUE));
 
       $token = $client->createToken(
         [
@@ -143,6 +138,7 @@ class CRM_Btcpay_Keys {
           'facade' => 'merchant'
         ]
       );
+
 
     } catch (\Exception $e) {
       /**
