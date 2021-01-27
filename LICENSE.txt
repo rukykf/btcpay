@@ -1,5 +1,5 @@
 Package: btcpay
-Copyright (C) 2020, FIXME <rukkykofi@fsf.org>
+Copyright (C) 2020, Kofi Oghenerukevwe (Free Software Foundation) <rukkykofi@fsf.org>
 Licensed under the GNU Affero Public License 3.0 (below).
 
 -------------------------------------------------------------------------------
