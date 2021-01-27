@@ -85,3 +85,10 @@ The tests currently do not work if you attempt to run them with a composer insta
 The e2e tests all require you to have this extension installed and enabled on a CiviCRM instance.
 Each of the tests has its own unique setup requirements. So if you run the tests and find that a test is failing, read through the docs on top of the tests
 to see what you need to create / install in the CiviCRM instance to get the tests to work.
+
+## Troubleshooting Common Issues
+### BTCPay Invoice does not pop-up on Thank You page
+Ensure that the same-origin policy is disabled on your BTCPay Server.
+
+Also check that your BTCPay store on your BTCPay Server has been setup for the cryptocurrencies you want to support (Bitcoin and Litecoin)
+
