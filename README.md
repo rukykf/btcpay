@@ -10,7 +10,7 @@ pages in case the user has Javascript disabled and the invoice can't pop-up on t
 After BTCPay Server confirms the payment and sends a notification back to the payment processor, it sends a payment receipt
 to the contributor.
 
-The extension is licensed under [AGPL-3.0 only](LICENSE.txt).
+The extension is licensed under [AGPL-3.0-only](LICENSE.txt).
 
 ## Requirements
 
