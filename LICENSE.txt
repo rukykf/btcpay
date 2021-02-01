@@ -1,9 +1,3 @@
-Package: btcpay
-Copyright (C) 2020, Kofi Oghenerukevwe (Free Software Foundation) <rukkykofi@fsf.org>
-Licensed under the GNU Affero Public License 3.0 (below).
-
--------------------------------------------------------------------------------
-
                     GNU AFFERO GENERAL PUBLIC LICENSE
                        Version 3, 19 November 2007
 

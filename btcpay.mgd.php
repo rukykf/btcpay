@@ -1,6 +1,24 @@
 <?php
 
 /**
+ * Package: BTCPay (CiviCRM Extension)
+ * Copyright (C) 2020, Kofi Oghenerukevwe <rukykf@gmail.com>
+ * Licensed under the GNU Affero Public License 3.0
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, version 3 of the license.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ **/
+
+/**
  * The record will be automatically inserted, updated, or deleted from the
  * database as appropriate. For more details, see "hook_civicrm_managed" at:
  * http://wiki.civicrm.org/confluence/display/CRMDOC/Hook+Reference

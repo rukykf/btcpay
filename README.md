@@ -10,7 +10,7 @@ pages in case the user has Javascript disabled and the invoice can't pop-up on t
 After BTCPay Server confirms the payment and sends a notification back to the payment processor, it sends a payment receipt
 to the contributor.
 
-The extension is licensed under [AGPL-3.0](LICENSE.txt).
+The extension is licensed under [AGPL-3.0 only](LICENSE.txt).
 
 ## Requirements
 
@@ -111,4 +111,4 @@ For more information about this see:
 
 Ensure that the same-origin policy is disabled on your BTCPay Server.
 
-Also check that your BTCPay store on your BTCPay Server has been setup for the cryptocurrencies you want to support (Bitcoin and Litecoin)
+Also check that your BTCPay store on your BTCPay Server has been setup for the cryptocurrencies you want to support. This extension has been tested with Bitcoin and Litecoin but it should work with other cryptocurrencies supported by your BTCPay instance.
