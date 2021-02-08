@@ -18,6 +18,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  **/
 
+// phpcs:disable
+use CRM_Btcpay_ExtensionUtil as E;
+// phpcs:enable
+
 class CRM_Core_Payment_Btcpay extends CRM_Core_Payment {
 
   use CRM_Core_Payment_BtcpayTrait;
@@ -39,7 +43,7 @@ class CRM_Core_Payment_Btcpay extends CRM_Core_Payment {
    */
   public function __construct($mode, &$paymentProcessor) {
     $this->_paymentProcessor = $paymentProcessor;
-    $this->_processorName = ts('Btcpay');
+    $this->_processorName = E::ts('Btcpay');
     $this->_client = new CRM_Btcpay_Client($this->_paymentProcessor);
   }
 
@@ -53,7 +57,7 @@ class CRM_Core_Payment_Btcpay extends CRM_Core_Payment {
     $error = [];
 
     if (empty($this->_paymentProcessor['password'])) {
-      $error[] = ts('The decryption password has not been set.');
+      $error[] = E::ts('The decryption password has not been set.');
     }
 
     if (!empty($error)) {
