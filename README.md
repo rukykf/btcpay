@@ -12,6 +12,8 @@ to the contributor.
 
 The extension is licensed under [AGPL-3.0-only](LICENSE.txt).
 
+The development of the first stable version of this extesion was funded through my Outreachy internship with the Free Software Foundation.
+
 ## Requirements
 
 * PHP v7.0+
