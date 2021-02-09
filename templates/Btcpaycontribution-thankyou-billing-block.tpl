@@ -1,3 +1,4 @@
+{crmScope key='btcpay'}
 <div class="crm-group credit_card-group">
   <div class="header-dark">
     {ts}Payment Information{/ts}
@@ -7,11 +8,10 @@
       {ts}Payment Url{/ts}: <a href="{$btcpayPaymentUrl}" target="_blank"><strong>{$btcpayPaymentUrl}</strong></a><br/>
       {ts}Total Amount:{/ts} <strong>{$btcpayPrice} {$btcpayCurrency}</strong><br/>
     </p>
-    <p><strong>We will send a receipt to your email after confirming your payment</strong></p>
+    <p><strong>{ts}We will send a receipt to your email after confirming your payment.{/ts}</strong></p>
 
-    <p>You can click the button in the contribution section below (requires Javascript) to copy the Crypto Address you'll need to complete this
-      transaction.</p>
-    <p>You can also send crypto payment (Bitcoin and Litecoin) into any of the following addresses</p><br/>
+    <p>{ts}You can click the button in the contribution section below (requires Javascript) to copy the Crypto Address you'll need to complete this transaction.{/ts}</p>
+    <p>{ts}You can also send crypto payment (Bitcoin and Litecoin) into any of the following addresses{/ts}</p><br/>
 
     <hr/>
     {foreach from=$btcpayCryptoInfo item=crypto name=payment}
@@ -22,7 +22,7 @@
         <p>{ts}{$btcpayCurrency} to {$crypto.cryptoCode} conversion rate{/ts}: <strong>{$crypto.rate}</strong></p>
         <br/>
         {if not $smarty.foreach.payment.last}
-          <strong>OR</strong>
+          <strong>{ts}OR{/ts}</strong>
           <br/>
         {/if}
       </div>
@@ -33,7 +33,7 @@
   <div class="crm-section crm-btcpay-block">
     <div class="crm-btcpay" id="btcpay-trxnid" style="display: none">{$btcpayTrxnId}</div>
     <a id="btcpay-payment-link" href="javascript:void(0)" onclick="btcpay.showInvoice('{$btcpayTrxnId}')">
-      <img src="{$btcpayServerUrl}/img/paybutton/pay.svg" alt="Pay with BTCPay" style="padding: 30px"/>
+      <img src="{$btcpayServerUrl}/img/paybutton/pay.svg" alt="{ts escape='js'}Pay with BTCPay{/ts}" style="padding: 30px"/>
     </a>
   </div>
 </div>
@@ -86,3 +86,4 @@
     // @license-end
   </script>
 {/literal}
+{/crmScope}
