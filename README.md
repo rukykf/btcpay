@@ -28,7 +28,7 @@ Sysadmins and developers may clone the [Git](https://gitlab.com/rukkyfsfcontribu
 with the command-line tool [cv](https://github.com/civicrm/cv).
 
 ```bash
-git clone https://gitlab.com/rukkyfsfcontributions/btcpay-civicrm-ext.git
+git clone https://github.com/rukykf/btcpay.git
 cv en btcpay
 ```
 
