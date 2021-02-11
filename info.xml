@@ -9,9 +9,9 @@
     <email>rukykf@gmail.com</email>
   </maintainer>
   <urls>
-    <url desc="Main Extension Page">https://gitlab.com/rukkyfsfcontributions/btcpay-civicrm-ext</url>
-    <url desc="Documentation">https://gitlab.com/rukkyfsfcontributions/btcpay-civicrm-ext</url>
-    <url desc="Support">https://gitlab.com/rukkyfsfcontributions/btcpay-civicrm-ext</url>
+    <url desc="Main Extension Page">https://github.com/rukykf/btcpay</url>
+    <url desc="Documentation">https://github.com/rukykf/btcpay/blob/master/README.md</url>
+    <url desc="Support">https://github.com/rukykf/btcpay/</url>
     <url desc="Licensing">http://www.gnu.org/licenses/agpl-3.0.html</url>
   </urls>
   <releaseDate>2021-02-01</releaseDate>
