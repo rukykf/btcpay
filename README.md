@@ -21,7 +21,7 @@ The development of the first stable version of this extesion was funded through 
 
 ## Installation (Web UI)
 
-This extension can be installed from CiviCRM's extensions UI. Go to *Administer -> System Settings -> Extensions -> Add New*
+This extension can be installed from CiviCRM's extensions UI. Go to **Administer -> System Settings -> Extensions -> Add New**
 
 ## Installation (CLI, Git)
 Enable and install the extension on your CiviCRM site.
