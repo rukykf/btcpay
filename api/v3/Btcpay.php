@@ -61,7 +61,7 @@ function _civicrm_api3_btcpay_pair_spec(&$spec) {
  * @param $params
  *
  * @return array
- * @throws \CiviCRM_API3_Exception
+ * @throws \CRM_Core_Exception
  */
 function civicrm_api3_btcpay_checkinstall($params) {
   $result = CRM_Core_Payment_Btcpay::createPaymentInstrument(['name' => 'Bitcoin']);
