@@ -54,7 +54,7 @@ class CRM_Core_Payment_BtcpayTest extends \PHPUnit\Framework\TestCase implements
    * Btcpay payment processors.
    *
    * @throws \CRM_Core_Exception
-   * @throws \CiviCRM_API3_Exception
+   * @throws \CRM_Core_Exception
    * @throws \Civi\Payment\Exception\PaymentProcessorException
    */
   public function testBtcpayGeneratesBtcpayInvoiceOnContributionPage() {

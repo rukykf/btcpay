@@ -39,7 +39,7 @@ class CRM_Btcpay_Client {
    *
    * @return \BTCPayServer\Client\Client
    * @throws \CRM_Core_Exception
-   * @throws \CiviCRM_API3_Exception
+   * @throws \CRM_Core_Exception
    */
   public function getClient() {
     $storageEngine = new \BTCPayServer\Storage\EncryptedFilesystemStorage(CRM_Btcpay_Keys::getKeyPassword($this->_paymentProcessor['id'])); // Password may need to be updated if you changed it

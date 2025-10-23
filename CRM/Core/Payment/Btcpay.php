@@ -151,7 +151,7 @@ class CRM_Core_Payment_Btcpay extends CRM_Core_Payment {
    *   Result array
    *
    * @throws \CRM_Core_Exception
-   * @throws \CiviCRM_API3_Exception
+   * @throws \CRM_Core_Exception
    */
   public function doPayment(&$params, $component = 'contribute') {
     Civi::log()->debug(print_r($component, TRUE));
@@ -238,7 +238,7 @@ class CRM_Core_Payment_Btcpay extends CRM_Core_Payment {
    * Process incoming payment notification (IPN).
    *
    * @throws \CRM_Core_Exception
-   * @throws \CiviCRM_API3_Exception
+   * @throws \CRM_Core_Exception
    */
   public static function handlePaymentNotification() {
     $dataRaw = file_get_contents("php://input");

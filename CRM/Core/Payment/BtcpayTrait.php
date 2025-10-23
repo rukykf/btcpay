@@ -43,7 +43,7 @@ trait CRM_Core_Payment_BtcpayTrait {
           'return' => ['email'],
         ));
       }
-      catch (CiviCRM_API3_Exception $e) {
+      catch (CRM_Core_Exception $e) {
         return NULL;
       }
     }
@@ -131,7 +131,7 @@ trait CRM_Core_Payment_BtcpayTrait {
    * @param array $params ['name' => payment instrument name]
    *
    * @return int|null
-   * @throws \CiviCRM_API3_Exception
+   * @throws \CRM_Core_Exception
    */
   public static function createPaymentInstrument($params) {
     $mandatoryParams = ['name'];

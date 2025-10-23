@@ -82,7 +82,7 @@ class CRM_Core_Payment_BtcpayIPN extends CRM_Core_Payment_BaseIPN
    * Main handler for btcpay IPN callback
    *
    * @return bool
-   * @throws \CiviCRM_API3_Exception
+   * @throws \CRM_Core_Exception
    */
   public function main()
   {
@@ -180,7 +180,7 @@ class CRM_Core_Payment_BtcpayIPN extends CRM_Core_Payment_BaseIPN
    * set by Civi's handle IPN hook
    *
    * @return void
-   * @throws \CiviCRM_API3_Exception
+   * @throws \CRM_Core_Exception
    *
    */
   private function getPaymentProcessorForUnitTest($paymentProcessorId)

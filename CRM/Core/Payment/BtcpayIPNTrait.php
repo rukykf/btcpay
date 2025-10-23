@@ -49,7 +49,7 @@ trait CRM_Core_Payment_BtcpayIPNTrait {
    * @param array $params [ 'id' -> contribution_id, 'payment_processor_id' -> payment_processor_id]
    *
    * @return bool
-   * @throws \CiviCRM_API3_Exception
+   * @throws \CRM_Core_Exception
    */
   protected function canceltransaction($params) {
     return $this->incompletetransaction($params, 'cancel');
@@ -61,7 +61,7 @@ trait CRM_Core_Payment_BtcpayIPNTrait {
    * @param array $params [ 'id' -> contribution_id, 'payment_processor_id' -> payment_processor_id]
    *
    * @return bool
-   * @throws \CiviCRM_API3_Exception
+   * @throws \CRM_Core_Exception
    */
   protected function failtransaction($params) {
     return $this->incompletetransaction($params, 'fail');
@@ -74,7 +74,7 @@ trait CRM_Core_Payment_BtcpayIPNTrait {
    * @param string $mode
    *
    * @return bool
-   * @throws \CiviCRM_API3_Exception
+   * @throws \CRM_Core_Exception
    */
   protected function incompletetransaction($params, $mode) {
     $requiredParams = ['id', 'payment_processor_id'];
@@ -90,11 +90,11 @@ trait CRM_Core_Payment_BtcpayIPNTrait {
     $contribution = new CRM_Contribute_BAO_Contribution();
     $contribution->id = $params['id'];
     if (!$contribution->find(TRUE)) {
-      throw new CiviCRM_API3_Exception('A valid contribution ID is required', 'invalid_data');
+      throw new CRM_Core_Exception('A valid contribution ID is required', 'invalid_data');
     }
 
     if (!$contribution->loadRelatedObjects($input, $ids, TRUE)) {
-      throw new CiviCRM_API3_Exception('failed to load related objects');
+      throw new CRM_Core_Exception('failed to load related objects');
     }
 
     $input['trxn_id'] = !empty($params['trxn_id']) ? $params['trxn_id'] : $contribution->trxn_id;
@@ -114,7 +114,7 @@ trait CRM_Core_Payment_BtcpayIPNTrait {
         return $this->failed($objects, $transaction);
 
       default:
-        throw new CiviCRM_API3_Exception('Unknown incomplete transaction type: ' . $mode);
+        throw new CRM_Core_Exception('Unknown incomplete transaction type: ' . $mode);
     }
 
   }
