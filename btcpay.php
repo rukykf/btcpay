@@ -262,8 +262,8 @@ function btcpay_civicrm_postProcess($formName, &$form) {
         ->debug("====================================UPDATING PARTICIPANT AND CONTRIBUTION STATUS FOR EVENT\n");
 
       // update the Contribution and Participants' status for the event to Pending
-      $contributionId = CRM_Utils_Array::value("contributionId", $form->_values);
-      $participantParams = CRM_Utils_Array::value("participant", $form->_values);
+      $contributionId = $form->_values["contributionId"] ?? NULL;
+      $participantParams = $form->_values["participant"] ?? NULL;
 
 
       $mainParticipant = $participantParams;

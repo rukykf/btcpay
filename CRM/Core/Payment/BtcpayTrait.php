@@ -102,18 +102,18 @@ trait CRM_Core_Payment_BtcpayTrait {
    */
   protected function getRecurringContributionId($params) {
     // Not yet passed, but could be added via core PR
-    $contributionRecurId = CRM_Utils_Array::value('contribution_recur_id', $params);
+    $contributionRecurId = $params['contribution_recur_id'] ?? NULL;
     if (!empty($contributionRecurId)) {
       return $contributionRecurId;
     }
 
     // Not yet passed, but could be added via core PR
-    $contributionId = CRM_Utils_Array::value('contribution_id', $params);
+    $contributionId = $params['contribution_id'] ?? NULL;
     try {
       return civicrm_api3('Contribution', 'getvalue', ['id' => $contributionId, 'return' => 'contribution_recur_id']);
     }
     catch (Exception $e) {
-      $subscriptionId = CRM_Utils_Array::value('subscriptionId', $params);
+      $subscriptionId = $params['subscriptionId'] ?? NULL;
       if (!empty($subscriptionId)) {
         try {
           return civicrm_api3('ContributionRecur', 'getvalue', ['processor_id' => $subscriptionId, 'return' => 'id']);
