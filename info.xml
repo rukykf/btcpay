@@ -23,8 +23,15 @@
   <comments/>
   <classloader>
     <psr4 prefix="Civi\" path="Civi"/>
+    <psr0 prefix="CRM_" path="."/>
   </classloader>
   <civix>
     <namespace>CRM/Btcpay</namespace>
+    <format>25.10.2</format>
   </civix>
+  <mixins>
+    <mixin>mgd-php@2.0.0</mixin>
+    <mixin>smarty-v2@1.0.3</mixin>
+    <mixin>scan-classes@1.0.0</mixin>
+  </mixins>
 </extension>
