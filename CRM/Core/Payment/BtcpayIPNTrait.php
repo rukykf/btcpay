@@ -1,5 +1,7 @@
 <?php
 
+use Civi\Api4\Contribution;
+
 /**
  * Package: BTCPay (CiviCRM Extension)
  * Copyright (C) 2020, Kofi Oghenerukevwe <rukykf@gmail.com>
@@ -84,34 +86,27 @@ trait CRM_Core_Payment_BtcpayIPNTrait {
       }
     }
 
-    if (isset($params['payment_processor_id'])) {
-      $input['payment_processor_id'] = $params['payment_processor_id'];
-    }
     $contribution = new CRM_Contribute_BAO_Contribution();
     $contribution->id = $params['id'];
     if (!$contribution->find(TRUE)) {
       throw new CRM_Core_Exception('A valid contribution ID is required', 'invalid_data');
     }
 
-    if (!$contribution->loadRelatedObjects($input, $ids, TRUE)) {
-      throw new CRM_Core_Exception('failed to load related objects');
-    }
-
-    $input['trxn_id'] = !empty($params['trxn_id']) ? $params['trxn_id'] : $contribution->trxn_id;
-    if (!empty($params['fee_amount'])) {
-      $input['fee_amount'] = $params['fee_amount'];
-    }
-
-    $objects['contribution'] = &$contribution;
-    $objects = array_merge($objects, $contribution->_relatedObjects);
-
-    $transaction = new CRM_Core_Transaction();
     switch ($mode) {
       case 'cancel':
-        return $this->cancelled($objects, $transaction);
+        Contribution::update(FALSE)->setValues([
+          'cancel_date' => 'now',
+          'contribution_status_id:name' => 'Cancelled',
+        ])->addWhere('id', '=', $contribution->id)->execute();
+        return TRUE;
 
       case 'fail':
-        return $this->failed($objects, $transaction);
+        Contribution::update(FALSE)->setValues([
+          'cancel_date' => 'now',
+          'contribution_status_id:name' => 'Failed',
+        ])->addWhere('id', '=', $contribution->id)->execute();
+        Civi::log()->debug("Setting contribution status to Failed");
+        return TRUE;
 
       default:
         throw new CRM_Core_Exception('Unknown incomplete transaction type: ' . $mode);
